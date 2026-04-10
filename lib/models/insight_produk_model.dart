@@ -233,15 +233,18 @@ class LifetimeStats {
 
 class Decision {
   final String finalAction;
+  final String finalReview;
   final List<String> reasons;
 
   Decision({
     required this.finalAction,
     required this.reasons,
+    required this.finalReview,
   });
 
   factory Decision.fromJson(Map<String, dynamic> json) {
     return Decision(
+      finalReview: json['FINAL_NIH_BOS'],
       finalAction: json['final_action'],
       reasons: List<String>.from(json['reasons']),
     );
