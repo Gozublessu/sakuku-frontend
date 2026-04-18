@@ -52,7 +52,7 @@ class SummaryCard extends StatelessWidget {
                 ]
               : [
                   Color(0xFF2F89FF),
-                  Colors.deepPurpleAccent,
+                  Color(0xFF2F89FF),
                 ],
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
@@ -77,7 +77,7 @@ class SummaryCard extends StatelessWidget {
             ],
           ),
 
-          const SizedBox(height: 20),
+          const SizedBox(height: 25),
 
           _buildSummaryValue(
             "Total Transaksi",

@@ -42,6 +42,11 @@ class ProductInsightProvider with ChangeNotifier {
     notifyListeners();
     // print("🔥 PROVIDER (${this.hashCode}) - isLoading=false, insight present: ${insight != null}");
   }
+
+  void clearInsight() {
+    insight = null;
+    notifyListeners();
+  }
 }
 
 class DeepInsightProvider with ChangeNotifier {

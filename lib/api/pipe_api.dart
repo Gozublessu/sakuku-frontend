@@ -183,12 +183,11 @@ class TierListApi {
   static final dio = Dio(BaseOptions(baseUrl: "http://localhost:8000"));
 
   // RANGE DATE
-  static Future<List<tierListItem>> getTierList(String start, String end) async {
+  static Future<List<tierListItem>> getTierList(String range) async {
     final res = await dio.get(
       "/transaction/tierlist",
       queryParameters: {
-        "start": start,
-        "end": end,
+        "range": range
       },
     );
 

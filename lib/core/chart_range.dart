@@ -3,3 +3,10 @@ enum ChartRange {
   month,
   all
 }
+
+enum TierRange {
+  today,
+  week,
+  month,
+  all,
+}

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:sakuku_desktop/core/chart_range.dart';
 import 'package:sakuku_desktop/pages/dashboard/widgets/best_seller_card.dart';
 import 'package:sakuku_desktop/pages/dashboard/widgets/highlight_new_product.dart';
 import 'package:sakuku_desktop/pages/dashboard/widgets/highlight_status.dart';
@@ -27,12 +28,10 @@ class _DashboardPageState extends State<DashboardPage> {
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (!mounted) return;
-      final now = DateTime.now();
       final today = DateTime.now();
       final yesterday = DateTime.now().subtract(const Duration(days: 1));
 
-      provider.loadDailySummary(now, now);
-      providerTierList.loadForDate(today);
+      providerTierList.loadForDashboard(TierRange.today);
       provider.loadDailySummary(yesterday, today);
     });
     Future.microtask(() {

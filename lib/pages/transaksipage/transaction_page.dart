@@ -6,7 +6,6 @@ import 'package:sakuku_desktop/providers/tier_list_provider.dart';
 import 'package:sakuku_desktop/providers/transactionListProvider.dart';
 import 'widgets/card_insight.dart';
 import 'widgets/top_tier_card.dart';
-import 'package:sakuku_desktop/core/chart_range.dart';
 
 class TransaksiPage extends StatefulWidget {
   const TransaksiPage({super.key});
@@ -19,8 +18,6 @@ class _TransaksiPageState extends State<TransaksiPage> {
   final ScrollController _controller = ScrollController();
   List<bool> expanded = [];
   DateTime selectedDate = DateTime.now();
-  // ChartRange _range = ChartRange.month;
-  final _range = ChartRange.month;
 
   @override
   void initState() {
@@ -28,6 +25,7 @@ class _TransaksiPageState extends State<TransaksiPage> {
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
       loadInitial();
+      context.read<TierListProvider>().initAll();
     });
 
     _controller.addListener(() {
@@ -38,15 +36,11 @@ class _TransaksiPageState extends State<TransaksiPage> {
       if (_controller.position.pixels >= _controller.position.maxScrollExtent - 200) {
         provider.loadNextPage();
       }
-      // print("pixels=${_controller.position.pixels}, max=${_controller.position.maxScrollExtent}");
     });
   }
 
   Future<void> loadInitial() async {
     final provider = context.read<TransactionListProvider>();
-    final providerTierList = context.read<TierListProvider>();
-
-    await providerTierList.loadByRange(_range);
 
     // load summary
     await provider.loadDailySummary(
@@ -94,7 +88,6 @@ class _TransaksiPageState extends State<TransaksiPage> {
     final provider = context.watch<TransactionListProvider>();
 
     final isFiltered = provider.filterDate != null;
-
     final transactions = provider.transactions;
 
     if (expanded.length != transactions.length) {
@@ -107,25 +100,30 @@ class _TransaksiPageState extends State<TransaksiPage> {
         builder: (context, constraints) {
           final isSmall = constraints.maxWidth < 1250;
 
+          // =========================
+          // 🔻 SMALL MODE (VERTICAL)
+          // =========================
           if (isSmall) {
-            // MODE SEMPT — disusun VERTIKAL supaya gak overflow
             return SingleChildScrollView(
               padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 20),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  _buildLeftPanel(isFiltered),
+                  _buildHeader(),
                   const SizedBox(height: 20),
-                  SizedBox(
-                    width: double.infinity,
-                    child: CardDeepInsight(),
-                  ),
+
+                  // 🔥 SUMMARY + TOP TIER (tetap ada, tapi turun)
+                  _buildTopSection(isFiltered),
+
                   const SizedBox(height: 20),
+
+                  const SizedBox(height: 20),
+
                   SizedBox(
-                    height: 600, // biar ListView bisa scroll
+                    height: 600,
                     child: TransactionList(
                       controller: _controller,
-                      transactions: provider.transactions,
+                      transactions: transactions,
                       expanded: expanded,
                       hasMore: provider.hasMore,
                       onLoadMore: provider.loadNextPage,
@@ -141,38 +139,54 @@ class _TransaksiPageState extends State<TransaksiPage> {
             );
           }
 
-          // MODE BESAR — layout normal Row
-          return Padding(
+          // =========================
+          // 🔺 BIG MODE (DASHBOARD)
+          // =========================
+          return SingleChildScrollView(
             padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 20),
-            child: Row(
+            child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                _buildLeftPanel(isFiltered),
-                const SizedBox(width: 15),
-                Padding(
-                  padding: const EdgeInsets.only(top: 90),
-                  child: SizedBox(
-                    width: 455,
-                    child: CardDeepInsight(),
-                  ),
-                ),
-                const SizedBox(width: 10),
-                Expanded(
-                  child: Padding(
-                    padding: const EdgeInsets.only(top: 90),
-                    child: TransactionList(
-                      controller: _controller,
-                      transactions: provider.transactions,
-                      expanded: expanded,
-                      hasMore: provider.hasMore,
-                      onLoadMore: provider.loadNextPage,
-                      onToggle: (index) {
-                        setState(() {
-                          expanded[index] = !expanded[index];
-                        });
-                      },
+                _buildHeader(),
+                const SizedBox(height: 28),
+                Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    SizedBox(
+                      width: 920,
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          IntrinsicHeight(
+                            child: _buildTopSection(isFiltered),
+                          ),
+                          const SizedBox(height: 15),
+                          SizedBox(
+                            height: 450,
+                            child: buildCardIsight(),
+                          ),
+                        ],
+                      ),
                     ),
-                  ),
+                    const SizedBox(width: 2),
+                    Expanded(
+                      child: SizedBox(
+                        height: 710,
+                        child: TransactionList(
+                          controller: _controller,
+                          transactions: transactions,
+                          expanded: expanded,
+                          hasMore: provider.hasMore,
+                          onLoadMore: provider.loadNextPage,
+                          onToggle: (index) {
+                            setState(() {
+                              expanded[index] = !expanded[index];
+                            });
+                          },
+                        ),
+                      ),
+                    ),
+                  ],
                 ),
               ],
             ),
@@ -182,53 +196,73 @@ class _TransaksiPageState extends State<TransaksiPage> {
     );
   }
 
-  Widget _buildLeftPanel(bool isFiltered) {
-    return ConstrainedBox(
-      constraints: const BoxConstraints(maxWidth: 450),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
+  Widget _buildHeader() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: const [
+        Text(
+          "Transaction",
+          style: TextStyle(
+            color: Color(0xFF147BF7),
+            fontSize: 28,
+            fontWeight: FontWeight.w700,
+          ),
+        ),
+        SizedBox(height: 4),
+        Text(
+          "Overview daily transactions",
+          style: TextStyle(fontSize: 15, color: Colors.grey),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildTopSection(bool isFiltered) {
+    return SizedBox(
+      height: 250,
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          // TITLE
-          const Text(
-            "Transaction",
-            style: TextStyle(
-              color: Color(0xFF147BF7),
-              fontSize: 28,
-              fontWeight: FontWeight.w700,
+          SizedBox(
+            width: 380,
+            child: SummaryCard(
+              selectedDate: selectedDate,
+              isFiltered: isFiltered,
+              onPickDate: pickDate,
+              onResetFilter: () async {
+                final now = DateTime.now();
+                final provider = context.read<TransactionListProvider>();
+
+                provider.filterDate = null;
+                setState(() => selectedDate = now);
+
+                await provider.resetAndLoad();
+                await provider.loadDailySummary(now, now);
+              },
             ),
           ),
-
-          const SizedBox(height: 4),
-          const Text(
-            "Overview daily transactions",
-            style: TextStyle(fontSize: 15, color: Colors.grey),
+          const SizedBox(width: 15),
+          const SizedBox(
+            width: 350,
+            child: TopTierCard(),
           ),
-
-          const SizedBox(height: 28),
-
-          // SUMMARY CARD
-          SummaryCard(
-            selectedDate: selectedDate,
-            isFiltered: isFiltered,
-            onPickDate: pickDate,
-            onResetFilter: () async {
-              final now = DateTime.now();
-              final provider = context.read<TransactionListProvider>();
-
-              provider.filterDate = null;
-              setState(() => selectedDate = now);
-
-              await provider.resetAndLoad();
-              await provider.loadDailySummary(now, now);
-            },
-          ),
-
-          const SizedBox(height: 15),
-
-          // TOP TIER PRODUK
-          const TopTierCard(),
         ],
       ),
+    );
+  }
+
+  Widget buildCardIsight() {
+    return Container(
+      width: 980,
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(
+          color: Colors.grey.shade300,
+          width: 1.2,
+        ),
+      ),
+      child: CardDeepInsight(),
     );
   }
 }

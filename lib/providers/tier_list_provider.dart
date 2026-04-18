@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:intl/intl.dart';
 import 'package:sakuku_desktop/models/tierl_list_model.dart';
 import '../api/pipe_api.dart';
 import 'package:sakuku_desktop/core/chart_range.dart';
@@ -8,51 +7,70 @@ class TierListProvider with ChangeNotifier {
   List<tierListItem> tierlist = [];
   bool isLoading = false;
   String? errorMessage;
+  bool get hasInsightOpen => selectedIndex != null;
 
-  String? startDate;
-  String? endDate;
+  /// UI STATE
+  int currentPage = 2; // default = month
+  int? selectedIndex;
 
-  // Helper untuk formatting
-  String _fmt(DateTime d) => DateFormat("yyyy-MM-dd").format(d);
+  /// DATA STATE
+  TierRange tierRange = TierRange.month;
 
-  /// LOAD BY DATE (1 hari)
-  Future<void> loadForDate(DateTime date) async {
-    startDate = _fmt(date);
-    endDate = _fmt(date);
-    await _fetch();
+  /// OPTIONAL CACHE (biar swipe ga reload terus)
+  final Map<TierRange, List<tierListItem>> _cache = {};
+
+  /// =========================
+  /// 🔥 SET PAGE (DARI SLIDE)
+  /// =========================
+  void setPage(int index) {
+    currentPage = index;
+
+    final newRange = _indexToRange(index);
+
+    if (tierRange == newRange) return;
+
+    tierRange = newRange;
+    selectedIndex = null; // reset insight
+
+    notifyListeners();
+    _fetch();
   }
 
-  /// LOAD BY RANGE
-  Future<void> loadForRange(DateTime start, DateTime end) async {
-    startDate = _fmt(start);
-    endDate = _fmt(end);
-    debugPrint('TierList range: $startDate → $endDate');
-    await _fetch();
+  /// =========================
+  /// 🔥 TAP ITEM (OPEN/CLOSE)
+  /// =========================
+  void toggleIndex(int index) {
+    if (selectedIndex == index) {
+      selectedIndex = null;
+    } else {
+      selectedIndex = index;
+    }
+    notifyListeners();
   }
 
-  /// LOAD ALL TIME
-  Future<void> loadAllTime() async {
-    startDate = null;
-    endDate = null;
-    await _fetch(allTime: true);
-  }
-
-  // FETCH UTAMA
-  Future<void> _fetch({bool allTime = false}) async {
+  /// =========================
+  /// 🔥 FETCH DATA
+  /// =========================
+  Future<void> _fetch() async {
     try {
+      /// ✅ CACHE HIT
+      if (_cache.containsKey(tierRange)) {
+        tierlist = _cache[tierRange]!;
+        notifyListeners();
+        return;
+      }
+
       isLoading = true;
       errorMessage = null;
       notifyListeners();
 
-      List<tierListItem> res;
+      final rangeStr = _mapRange(tierRange);
 
-      if (allTime) {
-        res = await TierListApi.getTierListAllTime();
-      } else {
-        res = await TierListApi.getTierList(startDate!, endDate!);
-      }
+      final res = await TierListApi.getTierList(rangeStr);
 
       tierlist = res;
+      _cache[tierRange] = res;
+
       isLoading = false;
       notifyListeners();
     } catch (e) {
@@ -62,24 +80,76 @@ class TierListProvider with ChangeNotifier {
     }
   }
 
-  Future<void> loadByRange(ChartRange range) async {
-    final now = DateTime.now();
-
-    final today = DateTime(now.year, now.month, now.day);
-
-    if (range == ChartRange.month) {
-      await loadForRange(
-        today.subtract(const Duration(days: 29)), // bukan 30
-        today,
-      );
-    } else if (range == ChartRange.week) {
-      await loadForRange(
-        today.subtract(const Duration(days: 6)),
-        today,
-      );
-    } else {
-      await loadAllTime();
-      debugPrint("REQUEST RANGE: $startDate → $endDate");
+  /// =========================
+  /// 🔥 HELPER
+  /// =========================
+  TierRange _indexToRange(int index) {
+    switch (index) {
+      case 0:
+        return TierRange.today;
+      case 1:
+        return TierRange.week;
+      case 2:
+        return TierRange.month;
+      case 3:
+        return TierRange.all;
+      default:
+        return TierRange.month;
     }
+  }
+
+  String _mapRange(TierRange range) {
+    switch (range) {
+      case TierRange.today:
+        return "today";
+      case TierRange.week:
+        return "week";
+      case TierRange.month:
+        return "month";
+      case TierRange.all:
+        return "all";
+    }
+  }
+
+  /// =========================
+  /// 🔥 INITIAL LOAD (WAJIB DIPANGGIL)
+  /// =========================
+  Future<void> init() async {
+    await _fetch();
+  }
+
+  Future<void> loadForDashboard(TierRange range) async {
+    tierRange = range;
+    currentPage = _rangeToIndex(range); // sync UI kalau dipakai
+
+    await _fetch();
+  }
+
+  int _rangeToIndex(TierRange range) {
+    switch (range) {
+      case TierRange.today:
+        return 0;
+      case TierRange.week:
+        return 1;
+      case TierRange.month:
+        return 2;
+      case TierRange.all:
+        return 3;
+    }
+  }
+
+  Future<void> initAll() async {
+    print("INIT ALL JALAN");
+    isLoading = true;
+    notifyListeners();
+
+    for (var range in TierRange.values) {
+      final res = await TierListApi.getTierList(_mapRange(range));
+      print("RANGE $range → ${res.length}");
+      _cache[range] = res;
+    }
+
+    isLoading = false;
+    notifyListeners();
   }
 }
