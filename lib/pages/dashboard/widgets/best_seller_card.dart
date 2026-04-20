@@ -131,13 +131,22 @@ class BestSellerCard extends StatelessWidget {
                     ],
                   ),
                 ),
+                const SizedBox(height: 4),
+                ClipRRect(
+                  borderRadius: BorderRadius.circular(6),
+                  child: LinearProgressIndicator(
+                    value: item.totalQty / topItems.first.totalQty,
+                    minHeight: 6,
+                    backgroundColor: Colors.grey,
+                    color: Colors.white,
+                  ),
+                ),
                 if (index < topItems.length - 1)
                   const Padding(
                     padding: EdgeInsets.symmetric(
-                      vertical: 8,
+                      vertical: 4,
                       horizontal: 10,
                     ),
-                    child: Divider(height: 1, color: Colors.white30, thickness: 1),
                   ),
               ],
             );

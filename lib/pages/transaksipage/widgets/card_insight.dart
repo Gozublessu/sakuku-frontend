@@ -83,22 +83,6 @@ class _CardDeepInsightState extends State<CardDeepInsight> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // const Text(
-              //   "Insight Top Produk",
-              //   style: TextStyle(
-              //     fontSize: 20,
-              //     fontWeight: FontWeight.w700,
-              //     color: Colors.white,
-              //   ),
-              // ),
-              // const SizedBox(height: 15),
-              // _heroHeader(
-              //   productName: data.product.nama,
-              //   totalQty: data.summary.totalQty,
-              //   totalProfit: data.summary.totalProfit,
-              //   rank: provider.selectedRank,
-              // ),
-              // const SizedBox(height: 15),
               Expanded(
                 child: _buildScrollableContent(data, provider),
               ),
@@ -207,55 +191,6 @@ class _CardDeepInsightState extends State<CardDeepInsight> {
       ),
     );
   }
-
-  // Widget _metricBox({
-  //   required String label,
-  //   required String value,
-  //   IconData? icon,
-  //   Color color = Colors.white,
-  // }) {
-  //   return Container(
-  //     width: 450,
-  //     padding: const EdgeInsets.symmetric(vertical: 2, horizontal: 5),
-  //     decoration: BoxDecoration(
-  //       color: Colors.white.withOpacity(0.15),
-  //       borderRadius: BorderRadius.circular(14),
-  //     ),
-  //     child: Row(
-  //       crossAxisAlignment: CrossAxisAlignment.center,
-  //       children: [
-  //         Icon(icon, color: color, size: 18),
-  //         const SizedBox(width: 15),
-  //         Expanded(
-  //           child: Column(
-  //             crossAxisAlignment: CrossAxisAlignment.start,
-  //             mainAxisSize: MainAxisSize.min,
-  //             children: [
-  //               Text(
-  //                 label,
-  //                 style: const TextStyle(
-  //                   fontSize: 12,
-  //                   fontWeight: FontWeight.bold,
-  //                   color: Colors.white70,
-  //                 ),
-  //               ),
-  //               const SizedBox(width: 15),
-  //               Text(
-  //                 value,
-  //                 style: const TextStyle(
-  //                   fontSize: 12,
-  //                   fontWeight: FontWeight.bold,
-  //                   color: Colors.white,
-  //                 ),
-  //               ),
-  //               const SizedBox(width: 28),
-  //             ],
-  //           ),
-  //         ),
-  //       ],
-  //     ),
-  //   );
-  // }
 
   Widget _restockInsightBox(List<RestockHistory> history) {
     return Container(
@@ -673,7 +608,7 @@ class _CardDeepInsightState extends State<CardDeepInsight> {
   }
 
   Widget _performanceStatus(dynamic data) {
-    final movement = data.classification.movement;
+    final movement = data.narrative.summary;
 
     return Container(
       padding: const EdgeInsets.all(14),
@@ -684,7 +619,7 @@ class _CardDeepInsightState extends State<CardDeepInsight> {
       child: Row(
         children: [
           Icon(
-            Icons.moving_outlined,
+            Icons.insights_outlined,
             color: Colors.white,
           ),
           const SizedBox(width: 10),

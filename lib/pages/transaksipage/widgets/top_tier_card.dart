@@ -61,7 +61,6 @@ class _TopTierCardState extends State<TopTierCard> {
   @override
   Widget build(BuildContext context) {
     final provider = context.watch<TierListProvider>();
-    final items = provider.tierlist;
 
     final subtitles = [
       "Penjualan terbaik hari ini.",
@@ -148,7 +147,6 @@ class _TopTierCardState extends State<TopTierCard> {
                 );
               }),
             ),
-            if (items.isEmpty) const Text("Belum ada data")
           ],
         ),
       ),
