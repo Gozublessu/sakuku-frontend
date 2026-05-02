@@ -113,7 +113,7 @@ class _TopTierCardState extends State<TopTierCard> {
                 ),
               ),
             ),
-            SizedBox(height: 5),
+            SizedBox(height: 10),
             SizedBox(
               height: 140,
               child: PageView(
@@ -247,7 +247,7 @@ class _TopTierCardState extends State<TopTierCard> {
                 ),
               ),
             ),
-            const SizedBox(height: 4),
+            const SizedBox(height: 6),
 
             /// 🔥 PROGRESS BAR
             ClipRRect(
@@ -259,7 +259,7 @@ class _TopTierCardState extends State<TopTierCard> {
                 color: const Color(0xFF2F89FF),
               ),
             ),
-            if (index < topItems.length - 1) const SizedBox(height: 2),
+            if (index < topItems.length - 1) const SizedBox(height: 4),
           ],
         );
       }),

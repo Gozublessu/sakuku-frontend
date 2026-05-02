@@ -232,6 +232,7 @@ class _ProductReportPageState extends State<ProductreportPage> {
       "ORALCARE",
       "FEMINIME HYGIENE",
       "CONDIMENTS",
+      "FORMULA",
     ];
 
     final List<String> movement = [

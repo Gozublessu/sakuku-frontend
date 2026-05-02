@@ -50,6 +50,7 @@ class _AddProductDialogState extends State<AddProductDialog> {
     "ORALCARE",
     "FEMINIME HYGIENE",
     "CONDIMENTS",
+    "FORMULA",
   ];
 
   void validateFields() {

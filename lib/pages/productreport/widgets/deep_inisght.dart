@@ -145,22 +145,22 @@ class CardDeepInsightReport extends StatelessWidget {
                 const SizedBox(height: 16),
 
                 // 🔥 WHY SECTION
-                const Text("Why this decision?", style: TextStyle(fontWeight: FontWeight.w600)),
-                const SizedBox(height: 8),
-                Wrap(
-                  spacing: 6,
-                  runSpacing: 6,
-                  children: data.decision.reasons.map((r) {
-                    return Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-                      decoration: BoxDecoration(
-                        color: Colors.grey[200],
-                        borderRadius: BorderRadius.circular(20),
-                      ),
-                      child: Text(r, style: const TextStyle(fontSize: 11)),
-                    );
-                  }).toList(),
-                ),
+                // const Text("Why this decision?", style: TextStyle(fontWeight: FontWeight.w600)),
+                // const SizedBox(height: 8),
+                // Wrap(
+                //   spacing: 6,
+                //   runSpacing: 6,
+                //   children: data.decision.reasons.map((r) {
+                //     return Container(
+                //       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                //       decoration: BoxDecoration(
+                //         color: Colors.grey[200],
+                //         borderRadius: BorderRadius.circular(20),
+                //       ),
+                //       child: Text(r, style: const TextStyle(fontSize: 11)),
+                //     );
+                //   }).toList(),
+                // ),
 
                 const SizedBox(height: 16),
 

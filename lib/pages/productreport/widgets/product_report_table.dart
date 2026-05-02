@@ -154,9 +154,9 @@ class ProductTableReport extends StatelessWidget {
                                       borderRadius: BorderRadius.circular(6),
                                     ),
                                     child: Text(
-                                      item.movement,
+                                      item.trend,
                                       style: TextStyle(
-                                        fontSize: 12,
+                                        fontSize: 10,
                                         color: Colors.grey.shade800,
                                         fontWeight: FontWeight.w500,
                                       ),

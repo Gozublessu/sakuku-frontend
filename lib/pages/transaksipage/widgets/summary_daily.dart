@@ -84,17 +84,17 @@ class SummaryCard extends StatelessWidget {
             summary.jumlahTransaksi,
             useRupiah: false,
           ),
-          const SizedBox(height: 6),
+          const SizedBox(height: 10),
           _buildSummaryValue(
             "Total Penjualan",
             summary.totalPenjualan,
           ),
-          const SizedBox(height: 6),
+          const SizedBox(height: 10),
           _buildSummaryValue(
             "Total Modal",
             summary.totalModal,
           ),
-          const SizedBox(height: 6),
+          const SizedBox(height: 10),
           _buildSummaryValue(
             "Total Profit",
             summary.totalProfit,

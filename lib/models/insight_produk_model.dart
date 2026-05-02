@@ -120,7 +120,6 @@ class Classification {
   final String movement;
   final String signalStock;
   final String signalProfit;
-  final String inisght;
   final String detectDemand;
   final String demandStability;
   final String detectDeepPattern;
@@ -130,7 +129,6 @@ class Classification {
     required this.movement,
     required this.signalStock,
     required this.signalProfit,
-    required this.inisght,
     required this.detectDemand,
     required this.demandStability,
     required this.detectDeepPattern,
@@ -142,7 +140,6 @@ class Classification {
       movement: json['movement'],
       signalStock: json['signal_stock'],
       signalProfit: json['signal_profit'],
-      inisght: json['insight'],
       detectDemand: json['detect_demand'],
       demandStability: json['demand_stability'],
       detectDeepPattern: json['detect_deep_pattern'],

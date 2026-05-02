@@ -10,6 +10,7 @@ class ProdukModel {
   final int marginRupiah;
   final double marginPersen;
   final String movement;
+  final String trend;
   int totalSold;
 
   ProdukModel({
@@ -25,6 +26,7 @@ class ProdukModel {
     required this.marginPersen,
     this.totalSold = 0,
     required this.movement,
+    required this.trend,
   });
 
   factory ProdukModel.fromJson(Map<String, dynamic> json) {
@@ -41,6 +43,7 @@ class ProdukModel {
       marginPersen: (json["Margin_persen"] as num).toDouble(),
       totalSold: int.tryParse(json["total_sold"]?.toString() ?? "0") ?? 0,
       movement: json["movement"] ?? '',
+      trend: json["trend"] ?? '',
     );
   }
 }

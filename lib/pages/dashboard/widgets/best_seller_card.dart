@@ -94,7 +94,7 @@ class BestSellerCard extends StatelessWidget {
                         child: Text(
                           "${index + 1}",
                           style: const TextStyle(
-                            fontSize: 14,
+                            fontSize: 12,
                             fontWeight: FontWeight.bold,
                             color: Colors.white,
                           ),
@@ -105,7 +105,7 @@ class BestSellerCard extends StatelessWidget {
                         child: Text(
                           item.namaProduk,
                           style: const TextStyle(
-                            fontSize: 15,
+                            fontSize: 12,
                             fontWeight: FontWeight.w500,
                             color: Colors.white,
                           ),
@@ -114,7 +114,7 @@ class BestSellerCard extends StatelessWidget {
                       Text(
                         "${item.totalQty}pcs",
                         style: TextStyle(
-                          fontSize: 14,
+                          fontSize: 12,
                           fontWeight: FontWeight.bold,
                           color: Colors.white,
                         ),

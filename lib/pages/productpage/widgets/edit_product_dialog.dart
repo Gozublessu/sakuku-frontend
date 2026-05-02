@@ -42,6 +42,7 @@ class _EditProductDialogState extends State<EditProductDialog> {
     "ORALCARE",
     "FEMINIME HYGIENE",
     "CONDIMENTS",
+    "FORMULA",
   ];
 
   @override
