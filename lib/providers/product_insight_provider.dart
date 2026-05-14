@@ -9,6 +9,7 @@ class ProductInsightProvider with ChangeNotifier {
   bool isLoading = false;
   String? errorMessage;
   int? selectedRank;
+  List<DailySale> dailySales = [];
 
   Future<void> loadInsight({
     required int productId,
@@ -16,7 +17,7 @@ class ProductInsightProvider with ChangeNotifier {
   }) async {
     final start = DateTime.now();
     selectedRank = rank;
-    print("🔥 loadInsight terpanggil dengan ID: $productId");
+    print("🔥🎉 loadInsight terpanggil dengan ID: $productId");
     isLoading = true;
     errorMessage = null;
     notifyListeners();
@@ -32,6 +33,7 @@ class ProductInsightProvider with ChangeNotifier {
     try {
       final result = await service.fetchInsight(productId);
       insight = result;
+      dailySales = result.dailySales;
       // print("🔥 PROVIDER (${this.hashCode}) - insight SET: ${insight != null}");
     } catch (e) {
       errorMessage = "Gagal memuat insight: $e";
@@ -46,6 +48,24 @@ class ProductInsightProvider with ChangeNotifier {
   void clearInsight() {
     insight = null;
     notifyListeners();
+  }
+
+  List<MapEntry<DateTime, int>> get aggregatedDailySales {
+    final grouped = <DateTime, int>{};
+
+    for (var sale in dailySales) {
+      final date = DateTime(
+        sale.date.year,
+        sale.date.month,
+        sale.date.day,
+      );
+
+      grouped[date] = (grouped[date] ?? 0) + sale.qty;
+    }
+
+    final result = grouped.entries.toList()..sort((a, b) => a.key.compareTo(b.key));
+
+    return result;
   }
 }
 
@@ -65,7 +85,7 @@ class DeepInsightProvider with ChangeNotifier {
     selectedId = productId;
     isLoading = true;
     errorMessage = null;
-    print("🔥 loadInsight terpanggil dengan ID: $productId");
+    print("🔥👻 loadInsight terpanggil dengan ID: $productId");
 
     notifyListeners();
 

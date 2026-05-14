@@ -1,4 +1,5 @@
 import 'package:intl/intl.dart';
+import 'package:flutter/material.dart';
 
 String rupiah(num value, {bool noMinus = false}) {
   final v = noMinus ? value.abs() : value;
@@ -48,4 +49,95 @@ int parseRupiah(String text) {
 double parseRupiahDouble(String text) {
   final clean = text.replaceAll(RegExp(r'[^0-9]'), '');
   return double.tryParse(clean) ?? 0;
+}
+
+double calculateDiscountedPrice(
+  double originalPrice,
+  double discountPercent,
+) {
+  return originalPrice - (originalPrice * discountPercent / 100);
+}
+
+enum DiscountType {
+  percentage,
+  nominal,
+}
+
+String formatInputRupiah(String value) {
+  final number = parseRupiah(value);
+
+  return NumberFormat.decimalPattern(
+    'id_ID',
+  ).format(number);
+}
+
+class ProductAction {
+  final String label;
+  final IconData icon;
+  final String type;
+
+  ProductAction({
+    required this.label,
+    required this.icon,
+    required this.type,
+  });
+}
+
+List<ProductAction> generateActions(
+  List<String> reasons,
+) {
+  final actions = <ProductAction>[];
+
+  final has = reasons.contains;
+
+  // 🔥 RESTOCK
+  if (has("CRITICAL STOCK") && has("MOVEMENT:FAST")) {
+    actions.add(
+      ProductAction(
+        label: "Restock",
+        icon: Icons.inventory_2,
+        type: "RESTOCK",
+      ),
+    );
+  }
+  if (has("LOW STOCK") && has("STABLE DEMAND")) {
+    actions.add(
+      ProductAction(
+        label: "Restock",
+        icon: Icons.inventory_2,
+        type: "RESTOCK",
+      ),
+    );
+  }
+
+  // 🔥 PROMO
+  if (has("OVER STOCK") && has("MOVEMENT:SLOW")) {
+    actions.add(
+      ProductAction(
+        label: "Create Promo",
+        icon: Icons.local_offer,
+        type: "PROMO",
+      ),
+    );
+  }
+
+  // 🔥 CAMPAIGN
+  if (has("VERY STABLE") && has("HEALTHY STOCK")) {
+    actions.add(
+      ProductAction(
+        label: "Campaign Push",
+        icon: Icons.campaign,
+        type: "CAMPAIGN",
+      ),
+    );
+  }
+  if (has("DECLINING DEMAND") && has("OVER STOCK")) {
+    actions.add(ProductAction(
+      label: "Campaign Push",
+      icon: Icons.campaign,
+      type: "CAMPAIGN",
+    ));
+  }
+
+  return actions;
 }

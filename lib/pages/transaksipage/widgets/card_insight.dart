@@ -94,7 +94,8 @@ class _CardDeepInsightState extends State<CardDeepInsight> {
   }
 
   Widget _buildScrollableContent(dynamic data, provider) {
-    final filteredSales = filterDailySales(data.dailySales, _range);
+    final aggregated = context.watch<ProductInsightProvider>().aggregatedDailySales;
+    final filteredSales = filterAggregated(aggregated, _range);
 
     return ScrollbarTheme(
       data: ScrollbarThemeData(
@@ -176,6 +177,24 @@ class _CardDeepInsightState extends State<CardDeepInsight> {
             )),
       ),
     );
+  }
+
+  List<MapEntry<DateTime, int>> filterAggregated(
+    List<MapEntry<DateTime, int>> source,
+    ChartRange range,
+  ) {
+    if (source.isEmpty) return [];
+
+    switch (range) {
+      case ChartRange.week:
+        return source.length <= 7 ? source : source.sublist(source.length - 7);
+
+      case ChartRange.month:
+        return source.length <= 30 ? source : source.sublist(source.length - 30);
+
+      case ChartRange.all:
+        return source;
+    }
   }
 
   Widget _sectionHeader(String title) {
@@ -483,19 +502,27 @@ class _CardDeepInsightState extends State<CardDeepInsight> {
   }
 
   Widget _chartSales({
-    required List<DailySale> dailySales,
+    required List<MapEntry<DateTime, int>> dailySales,
   }) {
+    if (dailySales.isEmpty) {
+      return const SizedBox(
+        height: 180,
+        child: Center(child: Text("No data")),
+      );
+    }
+
     final spots = <FlSpot>[];
-    final maxQty = dailySales.map((e) => e.qty).reduce((a, b) => a > b ? a : b).toDouble();
 
     for (int i = 0; i < dailySales.length; i++) {
       spots.add(
         FlSpot(
           i.toDouble(),
-          dailySales[i].qty.toDouble(),
+          dailySales[i].value.toDouble(), // qty
         ),
       );
     }
+
+    final maxQty = dailySales.map((e) => e.value).reduce((a, b) => a > b ? a : b).toDouble();
 
     return SizedBox(
       height: 180,
@@ -504,36 +531,41 @@ class _CardDeepInsightState extends State<CardDeepInsight> {
         child: LineChart(
           LineChartData(
             minX: 0,
-            maxX: dailySales.length - 1,
-            clipData: FlClipData.none(),
+            maxX: (dailySales.length - 1).toDouble(),
             gridData: FlGridData(show: false),
             borderData: FlBorderData(show: false),
             titlesData: FlTitlesData(
               leftTitles: AxisTitles(
-                sideTitles: SideTitles(
-                  showTitles: false,
-                  reservedSize: 32,
-                ),
+                sideTitles: SideTitles(showTitles: false),
+              ),
+              rightTitles: AxisTitles(
+                sideTitles: SideTitles(showTitles: false),
               ),
               topTitles: AxisTitles(
                 sideTitles: SideTitles(showTitles: false),
               ),
-              rightTitles: AxisTitles(
-                sideTitles: SideTitles(
-                  showTitles: false,
-                ),
-              ),
+
+              // 🔥 LABEL BAWAH (SUDAH GA KERITING)
               bottomTitles: AxisTitles(
                 sideTitles: SideTitles(
                   showTitles: true,
-                  interval: _bottomInterval(_range),
+                  interval: 1,
                   getTitlesWidget: (value, meta) {
                     final index = value.toInt();
-                    if (index >= dailySales.length) {
+
+                    if (index < 0 || index >= dailySales.length) {
                       return const SizedBox();
                     }
 
-                    final date = dailySales[index].date;
+                    // 🔥 kontrol jumlah label
+                    final step = (dailySales.length / 6).ceil();
+
+                    if (index % step != 0) {
+                      return const SizedBox();
+                    }
+
+                    final date = dailySales[index].key;
+
                     return Text(
                       DateFormat('dd MMM').format(date),
                       style: const TextStyle(
@@ -556,6 +588,7 @@ class _CardDeepInsightState extends State<CardDeepInsight> {
                   show: true,
                   getDotPainter: (spot, percent, bar, index) {
                     final isPeak = spot.y == maxQty;
+
                     return FlDotCirclePainter(
                       radius: isPeak ? 6 : 3,
                       color: isPeak ? Colors.greenAccent : Colors.white,
@@ -572,10 +605,6 @@ class _CardDeepInsightState extends State<CardDeepInsight> {
             lineTouchData: LineTouchData(
               handleBuiltInTouches: true,
               touchTooltipData: LineTouchTooltipData(
-                fitInsideHorizontally: true,
-                fitInsideVertically: true,
-                tooltipMargin: 8,
-                tooltipRoundedRadius: 8,
                 getTooltipItems: (touchedSpots) {
                   return touchedSpots.map((spot) {
                     return LineTooltipItem(
@@ -585,21 +614,6 @@ class _CardDeepInsightState extends State<CardDeepInsight> {
                   }).toList();
                 },
               ),
-              getTouchedSpotIndicator: (barData, spotIndexes) {
-                return spotIndexes.map((index) {
-                  return TouchedSpotIndicatorData(
-                    FlLine(
-                      color: Colors.white.withOpacity(0.3),
-                      strokeWidth: 1,
-                      dashArray: [
-                        4,
-                        4
-                      ],
-                    ),
-                    FlDotData(show: true),
-                  );
-                }).toList();
-              },
             ),
           ),
         ),
@@ -686,37 +700,6 @@ class _CardDeepInsightState extends State<CardDeepInsight> {
         ],
       ),
     );
-  }
-}
-
-double _bottomInterval(ChartRange range) {
-  switch (range) {
-    case ChartRange.week:
-      return 1; // harian
-    case ChartRange.month:
-      return 7; // weekly
-    case ChartRange.all:
-      return 10; // atau 14, tergantung data
-  }
-}
-
-List<DailySale> filterDailySales(
-  List<DailySale> source,
-  ChartRange range,
-) {
-  if (source.isEmpty) return [];
-
-  final sorted = [
-    ...source
-  ]..sort((a, b) => a.date.compareTo(b.date));
-
-  switch (range) {
-    case ChartRange.week:
-      return sorted.length <= 7 ? sorted : sorted.sublist(sorted.length - 7);
-    case ChartRange.month:
-      return sorted.length <= 30 ? sorted : sorted.sublist(sorted.length - 30);
-    case ChartRange.all:
-      return sorted;
   }
 }
 

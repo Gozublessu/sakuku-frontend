@@ -1,5 +1,6 @@
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import 'package:sakuku_desktop/models/insight_produk_model.dart';
 
 class InfoCard extends StatelessWidget {
@@ -144,26 +145,32 @@ Widget buildSalesChart(
     height: 150,
     child: LineChart(
       LineChartData(
+        minX: -0.15,
+        maxX: spots.length - 1 + 0.15,
         gridData: FlGridData(show: false),
         borderData: FlBorderData(show: false),
         titlesData: FlTitlesData(
           bottomTitles: AxisTitles(
             sideTitles: SideTitles(
+              reservedSize: 22,
               showTitles: true,
               interval: 1,
               getTitlesWidget: (value, meta) {
-                const days = [
-                  "Mon",
-                  "Tue",
-                  "Wed",
-                  "Thu",
-                  "Fri",
-                  "Sat",
-                  "Sun"
-                ];
+                if (value % 1 != 0) {
+                  return const SizedBox.shrink();
+                }
+
+                final index = value.toInt();
+
+                if (index < 0 || index >= chartData.length) {
+                  return const SizedBox.shrink();
+                }
+
+                final day = chartData[index].date;
+
                 return Text(
-                  days[value.toInt() % 7],
-                  style: TextStyle(fontSize: 10),
+                  DateFormat('EEE').format(day),
+                  style: const TextStyle(fontSize: 10),
                 );
               },
             ),
@@ -184,7 +191,7 @@ Widget buildSalesChart(
             isCurved: true,
             preventCurveOverShooting: true,
             color: lineColor,
-            barWidth: 3,
+            barWidth: 1.5,
             dotData: FlDotData(
               show: true,
               checkToShowDot: (spot, barData) {
@@ -206,6 +213,8 @@ Widget buildSalesChart(
         ],
         lineTouchData: LineTouchData(
           touchTooltipData: LineTouchTooltipData(
+            fitInsideHorizontally: true,
+            fitInsideVertically: true,
             getTooltipItems: (touchedSpots) {
               return touchedSpots.map((spot) {
                 return LineTooltipItem(

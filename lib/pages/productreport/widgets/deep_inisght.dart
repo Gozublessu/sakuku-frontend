@@ -4,12 +4,6 @@ import 'package:sakuku_desktop/pages/helper/info_card.dart';
 import 'package:sakuku_desktop/providers/product_insight_provider.dart';
 import 'package:sakuku_desktop/utils/helper_page.dart';
 
-// class CardDeepInsightReport extends StatefulWidget {
-//   const CardDeepInsightReport({super.key});
-//   @override
-//   State<CardDeepInsightReport> createState() => _CardDeepInsightState();
-// }
-
 Map<String, Color> actionColors = {
   "STRONG PRODUCT": Colors.green,
   "HEALTHY PRODUCT": Colors.blue,
@@ -20,7 +14,16 @@ Map<String, Color> actionColors = {
 };
 
 class CardDeepInsightReport extends StatelessWidget {
-  const CardDeepInsightReport({super.key});
+  final VoidCallback? onCreatePromo;
+  final VoidCallback? onRestock;
+  final VoidCallback? onCampaignPush;
+
+  const CardDeepInsightReport({
+    super.key,
+    required this.onCreatePromo,
+    required this.onRestock,
+    required this.onCampaignPush,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -40,7 +43,7 @@ class CardDeepInsightReport extends StatelessWidget {
                 color: Colors.blue,
               ),
               Text(
-                "Pilih produk dahulu",
+                "Your business workspace is ready.",
                 style: TextStyle(
                   color: Colors.black54,
                   fontWeight: FontWeight.w500,
@@ -52,6 +55,7 @@ class CardDeepInsightReport extends StatelessWidget {
 
         final data = provider.insight!;
         final action = data.decision.finalAction;
+        final actions = generateActions(data.decision.reasons);
 
         final baseColor = actionColors[action] ?? Colors.grey;
 
@@ -62,6 +66,7 @@ class CardDeepInsightReport extends StatelessWidget {
             borderRadius: BorderRadius.circular(12),
           ),
           child: SingleChildScrollView(
+            padding: const EdgeInsets.only(right: 15),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
@@ -71,22 +76,59 @@ class CardDeepInsightReport extends StatelessWidget {
                     Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text(data.product.nama, style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
-                        Text(data.classification.movement, style: TextStyle(color: Colors.grey[600])),
+                        RichText(
+                          text: TextSpan(
+                            children: [
+                              TextSpan(
+                                text: data.product.nama,
+                                style: const TextStyle(
+                                  fontSize: 18,
+                                  fontWeight: FontWeight.bold,
+                                  color: Colors.black,
+                                ),
+                              ),
+                              TextSpan(
+                                text: " ${normalizeNetto(data.product.netto)}",
+                                style: TextStyle(
+                                  fontSize: 15,
+                                  color: Colors.grey[700],
+                                  fontWeight: FontWeight.w500,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                        Text(
+                          data.classification.movement,
+                          style: TextStyle(
+                            color: Colors.grey[600],
+                          ),
+                        ),
                       ],
                     ),
                     const Spacer(),
-                    Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-                      decoration: BoxDecoration(
-                        color: baseColor,
-                        borderRadius: BorderRadius.circular(20),
-                      ),
-                      child: Text(
-                        action,
-                        style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
-                      ),
-                    )
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.end,
+                      children: [
+                        Container(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 12,
+                            vertical: 6,
+                          ),
+                          decoration: BoxDecoration(
+                            color: baseColor,
+                            borderRadius: BorderRadius.circular(20),
+                          ),
+                          child: Text(
+                            action,
+                            style: const TextStyle(
+                              color: Colors.white,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
                   ],
                 ),
 
@@ -144,37 +186,94 @@ class CardDeepInsightReport extends StatelessWidget {
 
                 const SizedBox(height: 16),
 
-                // 🔥 WHY SECTION
-                // const Text("Why this decision?", style: TextStyle(fontWeight: FontWeight.w600)),
-                // const SizedBox(height: 8),
-                // Wrap(
-                //   spacing: 6,
-                //   runSpacing: 6,
-                //   children: data.decision.reasons.map((r) {
-                //     return Container(
-                //       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-                //       decoration: BoxDecoration(
-                //         color: Colors.grey[200],
-                //         borderRadius: BorderRadius.circular(20),
-                //       ),
-                //       child: Text(r, style: const TextStyle(fontSize: 11)),
-                //     );
-                //   }).toList(),
-                // ),
-
-                const SizedBox(height: 16),
-
                 // 🔥 ADVANCED DETAILS
                 ExpansionTile(
-                  title: const Text("Advanced details"),
+                  tilePadding: EdgeInsets.zero,
+                  minTileHeight: 0,
+                  childrenPadding: const EdgeInsets.only(
+                    left: 5,
+                    right: 12,
+                    bottom: 12,
+                  ),
+                  title: const Text(
+                    "Advanced Details",
+                    style: TextStyle(
+                      fontWeight: FontWeight.bold,
+                      fontSize: 15,
+                    ),
+                  ),
                   children: [
-                    _infoItem("Selling Days", "${data.metricsLifeTime.selling}"),
-                    _infoItem("Lost Days", "${data.metricsLifeTime.lostDay}"),
-                    _infoItem("Active Days", "${data.metricsLifeTime.daysActive}"),
-                    _infoItem("Transaction", "${data.metricsLifeTime.transactionCount}"),
-                    _infoItem("Category", data.product.kategori),
-                    _infoItem("Buy Price", rupiah(data.product.hargaBeli)),
-                    _infoItem("Sell Price", rupiah(data.product.hargaJual)),
+                    Align(
+                      alignment: Alignment.centerLeft,
+                      child: Wrap(
+                        alignment: WrapAlignment.start,
+                        spacing: 12,
+                        runSpacing: 12,
+                        children: [
+                          _infoCard("Selling Days", "${data.metricsLifeTime.selling}"),
+                          _infoCard("Lost Days", "${data.metricsLifeTime.lostDay}"),
+                          _infoCard("Active Days", "${data.metricsLifeTime.daysActive}"),
+                          _infoCard("Transaction", "${data.metricsLifeTime.transactionCount}"),
+                          _infoCard("Category", data.product.kategori),
+                          _infoCard("Buy Price", rupiah(data.product.hargaBeli)),
+                          _infoCard("Sell Price", rupiah(data.product.hargaJual)),
+                          _infoCard("Total Selling", rupiah(data.summary.totalJual)),
+                          _infoCard("Margin Per Pcs", rupiah(data.product.marginRp)),
+                          _infoCard("Supplier", "No Brand"),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+                ExpansionTile(
+                  tilePadding: EdgeInsets.zero,
+                  minTileHeight: 0,
+                  childrenPadding: const EdgeInsets.only(
+                    left: 5,
+                    right: 12,
+                    bottom: 12,
+                  ),
+                  title: const Text(
+                    "Recommended Actions",
+                    style: TextStyle(
+                      fontWeight: FontWeight.bold,
+                      fontSize: 15,
+                    ),
+                  ),
+                  children: [
+                    Align(
+                      alignment: Alignment.centerLeft,
+                      child: Wrap(
+                        spacing: 12,
+                        runSpacing: 12,
+                        children: actions.map((action) {
+                          return ElevatedButton.icon(
+                            onPressed: () {
+                              if (action.type == "PROMO") {
+                                onCreatePromo?.call();
+                              } else if (action.type == "RESTOCK") {
+                                onRestock?.call();
+                              } else if (action.type == "CAMPAIGN") {
+                                onCampaignPush?.call();
+                              }
+                            },
+                            icon: Icon(action.icon),
+                            label: Text(action.label),
+                          );
+                        }).toList(),
+                      ),
+                    ),
+                    if (actions.isEmpty)
+                      Container(
+                        padding: const EdgeInsets.all(12),
+                        decoration: BoxDecoration(
+                          color: Colors.green.shade50,
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        child: const Text(
+                          "No immediate action required.",
+                        ),
+                      )
                   ],
                 ),
               ],
@@ -208,23 +307,41 @@ class CardDeepInsightReport extends StatelessWidget {
     );
   }
 
-  Widget _infoItem(String label, dynamic value) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 4),
-      child: Row(
+  Widget _infoCard(String label, String value) {
+    return Container(
+      constraints: const BoxConstraints(
+        minWidth: 140,
+        maxWidth: 180,
+      ),
+      padding: const EdgeInsets.all(12),
+      decoration: BoxDecoration(
+        color: Colors.grey.shade100,
+        borderRadius: BorderRadius.circular(12),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          SizedBox(
-            width: 120,
-            child: Text(label, style: TextStyle(color: Colors.grey[600])),
+          Text(
+            label,
+            style: TextStyle(
+              fontSize: 11,
+              color: Colors.grey.shade600,
+            ),
           ),
-          Expanded(
-            child: Text(
-              value.toString(),
-              style: const TextStyle(fontSize: 12),
+          const SizedBox(height: 6),
+          Text(
+            value,
+            style: const TextStyle(
+              fontSize: 14,
+              fontWeight: FontWeight.bold,
             ),
           ),
         ],
       ),
     );
+  }
+
+  String normalizeNetto(String netto) {
+    return netto.toLowerCase().replaceAll(RegExp(r'\s+'), '').replaceAll('gram', 'g').replaceAll('gr', 'g').replaceAll('ml.', 'ml');
   }
 }

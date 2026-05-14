@@ -2,13 +2,17 @@ import 'package:dropdown_search/dropdown_search.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
+import 'package:sakuku_desktop/models/insight_produk_model.dart';
 import 'package:sakuku_desktop/models/produk_model.dart';
 import 'package:sakuku_desktop/pages/helper/build_search.dart';
 import 'package:sakuku_desktop/pages/helper/info_card.dart';
 import 'package:sakuku_desktop/pages/productreport/widgets/deep_inisght.dart';
 import 'package:sakuku_desktop/pages/productreport/widgets/product_report_table.dart';
+import 'package:sakuku_desktop/pages/productreport/widgets/promo_workspace/promo_workspace_page.dart';
 import 'package:sakuku_desktop/providers/product_insight_provider.dart';
 import 'package:sakuku_desktop/providers/product_provider.dart';
+import 'package:sakuku_desktop/utils/helper_page.dart';
+import 'package:sakuku_desktop/pages/productreport/widgets/restock_workspace/restock_workspace.dart';
 
 class ProductreportPage extends StatefulWidget {
   const ProductreportPage({super.key});
@@ -18,11 +22,25 @@ class ProductreportPage extends StatefulWidget {
 }
 
 class _ProductReportPageState extends State<ProductreportPage> {
+  final ScrollController _promoScrollController = ScrollController();
   final ScrollController _controller = ScrollController();
   final TextEditingController searchC = TextEditingController();
   bool _isScrolling = false;
   String? activeProductId;
   late FocusNode _searchFocus;
+
+  String rightPanelMode = "insight";
+  final discountController = TextEditingController();
+  final promoLabelController = TextEditingController();
+  final promoNoteController = TextEditingController();
+  DateTime? promoStartDate;
+  DateTime? promoEndDate;
+  bool applyAllStock = true;
+
+  final promoQtyController = TextEditingController();
+  DiscountType discountType = DiscountType.percentage;
+
+  ProductInsightResponse? selectedInsight;
 
   void _handleProductAction(ProdukModel product) {
     final provider = context.read<DeepInsightProvider>();
@@ -72,8 +90,10 @@ class _ProductReportPageState extends State<ProductreportPage> {
   @override
   void dispose() {
     _controller.dispose();
+    _promoScrollController.dispose();
     searchC.dispose();
     _searchFocus.dispose();
+
     super.dispose();
   }
 
@@ -92,10 +112,39 @@ class _ProductReportPageState extends State<ProductreportPage> {
         children: [
           _buildCardLeft(),
           const SizedBox(width: 5),
-          Padding(
-            padding: const EdgeInsets.only(top: 110),
-            child: buildCardIsight(),
-          ),
+          Expanded(
+            child: Padding(
+              padding: const EdgeInsets.only(top: 110),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  _buildActionBar(),
+                  const SizedBox(height: 5),
+                  Expanded(
+                    child: rightPanelMode == "promo"
+                        ? PromoWorkSpacePage(
+                            insight: selectedInsight!,
+                            onBack: () {
+                              setState(() {
+                                rightPanelMode = "insight";
+                              });
+                            },
+                          )
+                        : rightPanelMode == "restock"
+                            ? RestockWorkspacePage(
+                                insight: selectedInsight!,
+                                onBack: () {
+                                  setState(() {
+                                    rightPanelMode = "insight";
+                                  });
+                                },
+                              )
+                            : buildCardIsight(),
+                  )
+                ],
+              ),
+            ),
+          )
         ],
       ),
     );
@@ -104,6 +153,7 @@ class _ProductReportPageState extends State<ProductreportPage> {
   Widget _buildCardLeft() {
     final provider = context.watch<ProductProvider>();
     final isSearching = searchC.text.isNotEmpty;
+
     return ConstrainedBox(
       constraints: const BoxConstraints(maxWidth: 450),
       child: Column(
@@ -196,10 +246,55 @@ class _ProductReportPageState extends State<ProductreportPage> {
     );
   }
 
-  Widget buildCardIsight() {
-    return Container(
-      height: 800,
+  Widget _buildActionBar() {
+    return SizedBox(
       width: 880,
+      child: Row(
+        children: [
+          _actionButton("Campaign action", onTap: () {
+            // setState(() {
+            //   rightPanelMode = "promo";
+            // });
+          }),
+          const SizedBox(width: 10),
+          _actionButton("Create Bundle"),
+        ],
+      ),
+    );
+  }
+
+  Widget _actionButton(
+    String title, {
+    VoidCallback? onTap,
+  }) {
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        padding: const EdgeInsets.symmetric(
+          horizontal: 18,
+          vertical: 10,
+        ),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(12),
+          border: Border.all(
+            color: Colors.grey.shade300,
+          ),
+        ),
+        child: Text(
+          title,
+          style: const TextStyle(
+            fontWeight: FontWeight.w600,
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget buildCardIsight() {
+    final provider = context.watch<DeepInsightProvider>();
+    return Container(
+      width: 900,
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(12),
@@ -208,7 +303,23 @@ class _ProductReportPageState extends State<ProductreportPage> {
           width: 1.4,
         ),
       ),
-      child: CardDeepInsightReport(),
+      child: CardDeepInsightReport(
+        onRestock: () {
+          setState(() {
+            selectedInsight = provider.insight;
+            rightPanelMode = "restock";
+          });
+        },
+        onCreatePromo: () {
+          selectedInsight = provider.insight;
+          setState(() {
+            rightPanelMode = "promo";
+          });
+        },
+        onCampaignPush: () {
+          setState(() {});
+        },
+      ),
     );
   }
 

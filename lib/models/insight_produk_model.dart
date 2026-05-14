@@ -9,6 +9,7 @@ class ProductInsightResponse {
   final List<DailySale> dailySales;
   final List<RestockHistory> restockHistory;
   final Trend trend;
+  final Window7d window7d;
 
   ProductInsightResponse({
     required this.product,
@@ -21,6 +22,7 @@ class ProductInsightResponse {
     required this.decision,
     required this.narrative,
     required this.trend,
+    required this.window7d,
   });
 
   factory ProductInsightResponse.fromJson(Map<String, dynamic> json) {
@@ -36,6 +38,20 @@ class ProductInsightResponse {
       dailySales: (json['daily_sales'] as List).map((e) => DailySale.fromJson(e)).toList(),
       restockHistory: (json['restock_history'] as List).map((e) => RestockHistory.fromJson(e)).toList(),
       trend: Trend.fromJson(json['summary']['metrics']['trend']),
+      window7d: Window7d.fromJson(json['summary']['metrics']['window_7d']),
+    );
+  }
+}
+
+class Window7d {
+  final num avg_7d;
+  Window7d({
+    required this.avg_7d,
+  });
+
+  factory Window7d.fromJson(Map<String, dynamic> json) {
+    return Window7d(
+      avg_7d: json['avg_7d'],
     );
   }
 }
@@ -43,6 +59,7 @@ class ProductInsightResponse {
 class ProductData {
   final int id;
   final String nama;
+  final String kodeProduk;
   final String kategori;
   final String netto;
   final num hargaJual;
@@ -57,6 +74,7 @@ class ProductData {
   ProductData({
     required this.id,
     required this.nama,
+    required this.kodeProduk,
     required this.kategori,
     required this.netto,
     required this.hargaJual,
@@ -73,6 +91,7 @@ class ProductData {
     return ProductData(
       id: json['id'],
       nama: json['nama'],
+      kodeProduk: json['kode_produk'],
       kategori: json['kategori'],
       netto: json['netto'],
       hargaJual: json['harga_jual'],
@@ -232,11 +251,13 @@ class Decision {
   final String finalAction;
   final String finalReview;
   final List<String> reasons;
+  final RecommendedRestock? recomendedRestock;
 
   Decision({
     required this.finalAction,
     required this.reasons,
     required this.finalReview,
+    required this.recomendedRestock,
   });
 
   factory Decision.fromJson(Map<String, dynamic> json) {
@@ -244,6 +265,11 @@ class Decision {
       finalReview: json['FINAL_NIH_BOS'],
       finalAction: json['final_action'],
       reasons: List<String>.from(json['reasons']),
+      recomendedRestock: json['recomended_restock'] != null
+          ? RecommendedRestock.fromJson(
+              json['recomended_restock'],
+            )
+          : null,
     );
   }
 }
@@ -291,6 +317,25 @@ class Trend {
     }
     return Trend(
       velocityShift: (json['velocity_shift'] ?? 0).toDouble(),
+    );
+  }
+}
+
+class RecommendedRestock {
+  final int minRestock;
+  final int maxRestock;
+
+  RecommendedRestock({
+    required this.minRestock,
+    required this.maxRestock,
+  });
+
+  factory RecommendedRestock.fromJson(
+    Map<String, dynamic> json,
+  ) {
+    return RecommendedRestock(
+      minRestock: json['min_restock'],
+      maxRestock: json['max_restock'],
     );
   }
 }

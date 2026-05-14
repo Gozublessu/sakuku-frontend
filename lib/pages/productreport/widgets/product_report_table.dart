@@ -67,7 +67,7 @@ class ProductTableReport extends StatelessWidget {
                 child: Align(
                   alignment: Alignment.center,
                   child: Text(
-                    "Movement",
+                    "Trend",
                     style: _headingTextStyle,
                   ),
                 ),
@@ -146,18 +146,18 @@ class ProductTableReport extends StatelessWidget {
                               Expanded(
                                 flex: 2,
                                 child: Align(
-                                  alignment: Alignment.center,
+                                  alignment: Alignment.centerRight,
                                   child: Container(
                                     padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                                     decoration: BoxDecoration(
-                                      color: Colors.grey.shade200,
+                                      color: getTrendColor(item.trend),
                                       borderRadius: BorderRadius.circular(6),
                                     ),
                                     child: Text(
                                       item.trend,
                                       style: TextStyle(
                                         fontSize: 10,
-                                        color: Colors.grey.shade800,
+                                        color: Colors.white,
                                         fontWeight: FontWeight.w500,
                                       ),
                                     ),
@@ -190,5 +190,29 @@ class ProductTableReport extends StatelessWidget {
         ),
       ],
     );
+  }
+
+  Color getTrendColor(String trend) {
+    switch (trend.toLowerCase()) {
+      case "rising demand":
+        return Colors.green;
+
+      case "temporary cooling":
+        return Colors.amber.shade300;
+
+      case "declining demand":
+        return Colors.orange;
+
+      case "sporadic demand":
+        return Colors.deepPurpleAccent;
+      case "demand stopped":
+        return Colors.red;
+
+      case "stable demand":
+        return Colors.blue;
+
+      default:
+        return Colors.grey;
+    }
   }
 }
