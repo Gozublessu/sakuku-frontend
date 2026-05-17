@@ -1,8 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import 'package:sakuku_desktop/models/create_promo_model.dart';
 
 import 'package:sakuku_desktop/pages/productreport/widgets/promo_workspace/promo_information_section.dart';
 import 'package:sakuku_desktop/pages/productreport/widgets/promo_workspace/promo_result_section.dart';
 import 'package:sakuku_desktop/pages/productreport/widgets/promo_workspace/promo_summary_card.dart';
+import 'package:sakuku_desktop/providers/product_insight_provider.dart';
+import 'package:sakuku_desktop/providers/product_provider.dart';
 import 'package:sakuku_desktop/utils/helper_page.dart';
 import 'package:sakuku_desktop/pages/productreport/widgets/promo_workspace/promo_basic_info.dart';
 import 'package:sakuku_desktop/pages/productreport/widgets/promo_workspace/promo_header.dart';
@@ -189,6 +193,85 @@ class _PromoWorkSpace extends State<PromoWorkSpacePage> {
             PromoInformationSection(
               promoLabelController: promoLabelController,
               promoNoteController: promoNoteController,
+            ),
+            const SizedBox(height: 24),
+            SizedBox(
+              width: double.infinity,
+              child: ElevatedButton.icon(
+                onPressed: () async {
+                  if (promoStartDate == null || promoEndDate == null) {
+                    ScaffoldMessenger.of(
+                      context,
+                    ).showSnackBar(
+                      const SnackBar(
+                        content: Text(
+                          "Tanggal promo belum dipilih",
+                        ),
+                      ),
+                    );
+
+                    return;
+                  }
+
+                  final double promoMarginPercent = discountedPrice == 0 ? 0 : ((newMargin / discountedPrice) * 100).toDouble();
+
+                  final request = CreatePromoRequest(
+                    productId: product.product.id,
+                    promoType: promoLabelController.text,
+                    discountType: discountType == DiscountType.percentage ? "PERCENTAGE" : "NOMINAL",
+                    discountValue: discountValue,
+                    startDate: promoStartDate!,
+                    endDate: promoEndDate!,
+                    scopeType: applyAllStock ? "ALL" : "CUSTOM",
+                    profitStatus: profitStatus,
+                    promoPrice: discountedPrice,
+                    promoMargin: newMargin,
+                    promoMarginPercent: promoMarginPercent,
+                    originalPrice: product.product.hargaJual.toDouble(),
+                    originalMargin: product.product.marginRp.toDouble(),
+                    originalMarginPercent: product.product.marginPersen.toDouble(),
+                    notes: promoNoteController.text,
+                    customQty: applyAllStock ? null : selectedQty,
+                  );
+
+                  final success = await context.read<ProductProvider>().createPromo(
+                        request: request,
+                      );
+
+                  if (success) {
+                    await context.read<DeepInsightProvider>().loadInsight(
+                          productId: product.product.id,
+                        );
+
+                    widget.onBack();
+
+                    ScaffoldMessenger.of(
+                      context,
+                    ).showSnackBar(
+                      const SnackBar(
+                        content: Text(
+                          "Promo berhasil dibuat",
+                        ),
+                        backgroundColor: Colors.green,
+                      ),
+                    );
+                  } else {
+                    ScaffoldMessenger.of(
+                      context,
+                    ).showSnackBar(
+                      const SnackBar(
+                        content: Text(
+                          "Gagal membuat promo",
+                        ),
+                      ),
+                    );
+                  }
+                },
+                icon: const Icon(
+                  Icons.shop,
+                ),
+                label: const Text("Execute Promo"),
+              ),
             ),
             const SizedBox(height: 24),
           ],

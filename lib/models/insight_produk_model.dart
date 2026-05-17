@@ -10,6 +10,7 @@ class ProductInsightResponse {
   final List<RestockHistory> restockHistory;
   final Trend trend;
   final Window7d window7d;
+  final Promo promoProduct;
 
   ProductInsightResponse({
     required this.product,
@@ -23,6 +24,7 @@ class ProductInsightResponse {
     required this.narrative,
     required this.trend,
     required this.window7d,
+    required this.promoProduct,
   });
 
   factory ProductInsightResponse.fromJson(Map<String, dynamic> json) {
@@ -39,6 +41,36 @@ class ProductInsightResponse {
       restockHistory: (json['restock_history'] as List).map((e) => RestockHistory.fromJson(e)).toList(),
       trend: Trend.fromJson(json['summary']['metrics']['trend']),
       window7d: Window7d.fromJson(json['summary']['metrics']['window_7d']),
+      promoProduct: Promo.fromJson(json['promo']),
+    );
+  }
+}
+
+class Promo {
+  final bool isPromo;
+  final String? promoType;
+  final double? promoPrice;
+  final DateTime? startDate;
+  final DateTime? endDate;
+  final String? promoStatus;
+
+  Promo({
+    required this.isPromo,
+    required this.promoType,
+    required this.promoPrice,
+    required this.startDate,
+    required this.endDate,
+    required this.promoStatus,
+  });
+
+  factory Promo.fromJson(Map<String, dynamic> json) {
+    return Promo(
+      isPromo: json["is_promo"] ?? false,
+      promoType: json['promo_type'],
+      promoPrice: json['promo_price']?.toDouble(),
+      startDate: json['start_date'] != null ? DateTime.parse(json['start_date']) : null,
+      endDate: json['end_date'] != null ? DateTime.parse(json['end_date']) : null,
+      promoStatus: json['promo_status'],
     );
   }
 }

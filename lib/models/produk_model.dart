@@ -12,6 +12,10 @@ class ProdukModel {
   final String movement;
   final String trend;
   int totalSold;
+  final bool isPromo;
+  final String? promoType;
+  final double? promoPrice;
+  final String? promoStatus;
 
   ProdukModel({
     required this.namaProduk,
@@ -27,6 +31,10 @@ class ProdukModel {
     this.totalSold = 0,
     required this.movement,
     required this.trend,
+    required this.isPromo,
+    required this.promoPrice,
+    required this.promoType,
+    required this.promoStatus,
   });
 
   factory ProdukModel.fromJson(Map<String, dynamic> json) {
@@ -44,6 +52,10 @@ class ProdukModel {
       totalSold: int.tryParse(json["total_sold"]?.toString() ?? "0") ?? 0,
       movement: json["movement"] ?? '',
       trend: json["trend"] ?? '',
+      isPromo: json["is_promo"] ?? false,
+      promoType: json['promo_type'],
+      promoPrice: json["promo_price"]?.toDouble(),
+      promoStatus: json["promo_status"],
     );
   }
 }

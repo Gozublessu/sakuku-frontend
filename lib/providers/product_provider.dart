@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'package:sakuku_desktop/models/create_promo_model.dart';
 import 'package:sakuku_desktop/models/restock_model.dart';
 import 'package:sakuku_desktop/models/update_meta_model.dart';
 import 'package:flutter/material.dart';
@@ -124,6 +125,14 @@ class ProductProvider with ChangeNotifier {
       await loadInitial();
     }
     return succes;
+  }
+
+  Future<bool> createPromo({
+    required CreatePromoRequest request,
+  }) async {
+    return await service.createPromo(
+      request: request,
+    );
   }
 
   String get summaryLabel {

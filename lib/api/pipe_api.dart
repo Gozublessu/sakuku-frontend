@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:dio/dio.dart';
+import 'package:sakuku_desktop/models/create_promo_model.dart';
 import 'package:sakuku_desktop/models/dead_stock_model.dart';
 import 'package:sakuku_desktop/models/highlight_update_model.dart';
 import 'package:sakuku_desktop/models/low_stock.dart';
@@ -112,6 +113,17 @@ class ProductAPI {
     } else {
       return data["detail"] ?? "Failed to add product";
     }
+  }
+
+  Future<bool> createPromo({
+    required CreatePromoRequest request,
+  }) async {
+    final response = await dio.post(
+      "/products/product-promo",
+      data: request.toJson(),
+    );
+
+    return response.statusCode == 200;
   }
 }
 

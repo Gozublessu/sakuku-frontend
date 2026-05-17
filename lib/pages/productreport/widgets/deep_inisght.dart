@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:sakuku_desktop/pages/helper/info_card.dart';
+import 'package:sakuku_desktop/pages/productreport/widgets/helper_page.dart';
 import 'package:sakuku_desktop/providers/product_insight_provider.dart';
 import 'package:sakuku_desktop/utils/helper_page.dart';
 
@@ -72,6 +73,7 @@ class CardDeepInsightReport extends StatelessWidget {
               children: [
                 // 🔥 HEADER
                 Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
@@ -104,6 +106,8 @@ class CardDeepInsightReport extends StatelessWidget {
                             color: Colors.grey[600],
                           ),
                         ),
+                        const SizedBox(height: 10),
+                        if (data.promoProduct.promoStatus != null) PromoBadge(data: data),
                       ],
                     ),
                     const Spacer(),

@@ -133,6 +133,64 @@ class ProductTableReport extends StatelessWidget {
                                         fontWeight: FontWeight.w600,
                                       ),
                                     ),
+                                    if (item.promoStatus == "ACTIVE")
+                                      Container(
+                                        margin: const EdgeInsets.only(
+                                          top: 4,
+                                          bottom: 4,
+                                        ),
+                                        padding: const EdgeInsets.symmetric(
+                                          horizontal: 8,
+                                          vertical: 3,
+                                        ),
+                                        decoration: BoxDecoration(
+                                          color: Colors.orange.shade100,
+                                          borderRadius: BorderRadius.circular(6),
+                                        ),
+                                        child: Text(
+                                          "🔥 ${item.promoType}",
+                                          style: TextStyle(
+                                            fontSize: 12,
+                                            fontWeight: FontWeight.w600,
+                                            color: Colors.orange.shade800,
+                                          ),
+                                        ),
+                                      ),
+                                    if (item.promoStatus == "SCHEDULED")
+                                      Container(
+                                        margin: const EdgeInsets.only(
+                                          top: 4,
+                                          bottom: 4,
+                                        ),
+                                        padding: const EdgeInsets.symmetric(
+                                          horizontal: 8,
+                                          vertical: 3,
+                                        ),
+                                        decoration: BoxDecoration(
+                                          color: Colors.blue.shade100,
+                                          borderRadius: BorderRadius.circular(6),
+                                        ),
+                                        child: Row(
+                                          mainAxisSize: MainAxisSize.min,
+                                          children: [
+                                            Icon(
+                                              Icons.schedule,
+                                              color: Colors.blue.shade700,
+                                              size: 16,
+                                            ),
+                                            const SizedBox(width: 6),
+                                            Text(
+                                              "${item.promoType} start soon",
+                                              style: TextStyle(
+                                                fontSize: 13,
+                                                fontWeight: FontWeight.w700,
+                                                color: Colors.blue.shade900,
+                                              ),
+                                            ),
+                                            const SizedBox(width: 8),
+                                          ],
+                                        ),
+                                      ),
                                     Text(
                                       item.kodeProduk,
                                       style: TextStyle(

@@ -91,7 +91,7 @@ List<ProductAction> generateActions(
   final has = reasons.contains;
 
   // 🔥 RESTOCK
-  if (has("CRITICAL STOCK") && has("MOVEMENT:FAST")) {
+  if (has("CRITICAL STOCK") || has("LOW STOCK")) {
     actions.add(
       ProductAction(
         label: "Restock",
@@ -100,6 +100,7 @@ List<ProductAction> generateActions(
       ),
     );
   }
+
   if (has("LOW STOCK") && has("STABLE DEMAND")) {
     actions.add(
       ProductAction(
@@ -122,12 +123,12 @@ List<ProductAction> generateActions(
   }
 
   // 🔥 CAMPAIGN
-  if (has("VERY STABLE") && has("HEALTHY STOCK")) {
+  if (has("STABLE DEMAND") && has("HIGH STOCK")) {
     actions.add(
       ProductAction(
         label: "Campaign Push",
         icon: Icons.campaign,
-        type: "CAMPAIGN",
+        type: "PROMO",
       ),
     );
   }
@@ -135,7 +136,7 @@ List<ProductAction> generateActions(
     actions.add(ProductAction(
       label: "Campaign Push",
       icon: Icons.campaign,
-      type: "CAMPAIGN",
+      type: "PROMO",
     ));
   }
 

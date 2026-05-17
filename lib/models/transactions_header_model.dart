@@ -7,6 +7,8 @@ class TransactionHeaderModel {
   final double totalPenjualan;
   final double totalModal;
   final double totalProfit;
+  final bool isPromo;
+  final String? promoType;
   // final double jumlahTransaksi;
   final List<TransactionItemModel> items;
 
@@ -18,6 +20,8 @@ class TransactionHeaderModel {
     required this.totalProfit,
     required this.items,
     required this.namaProduk,
+    required this.isPromo,
+    required this.promoType,
     // required this.jumlahTransaksi,
   });
 
@@ -26,10 +30,11 @@ class TransactionHeaderModel {
       id: int.parse(json['id'].toString()),
       date: json['date'].toString(),
       namaProduk: json["Nama_produk"] ?? "",
+      isPromo: json['is_promo'] ?? false,
+      promoType: json['promo_type'],
       totalPenjualan: double.parse(json['total_penjualan'].toString()),
       totalModal: double.parse(json['total_modal'].toString()),
       totalProfit: double.parse(json['total_profit'].toString()),
-      // jumlahTransaksi: double.tryParse(json['jumlah_transaksi']?.toString() ?? '') ?? 0.0,
       items: json['items'] == null ? [] : (json['items'] as List).map((e) => TransactionItemModel.fromJson(e)).toList(),
     );
   }
