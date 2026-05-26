@@ -195,33 +195,39 @@ class _TransactionDetails extends StatelessWidget {
             padding: const EdgeInsets.only(bottom: 8),
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(
-                  "${it.namaProduk} x ${it.qty}pcs",
-                  style: const TextStyle(fontSize: 14),
-                ),
-                if (it.isPromo)
-                  Container(
-                    margin: const EdgeInsets.only(
-                      top: 4,
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      "${it.namaProduk} x ${it.qty}pcs",
+                      style: const TextStyle(fontSize: 14),
                     ),
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 8,
-                      vertical: 3,
-                    ),
-                    decoration: BoxDecoration(
-                      color: Colors.orange.shade50,
-                      borderRadius: BorderRadius.circular(6),
-                    ),
-                    child: Text(
-                      "🔥 ${it.promoType}",
-                      style: TextStyle(
-                        fontSize: 11,
-                        fontWeight: FontWeight.w600,
-                        color: Colors.orange.shade800,
+                    if (it.isPromo)
+                      Container(
+                        margin: const EdgeInsets.only(
+                          top: 4,
+                        ),
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 8,
+                          vertical: 3,
+                        ),
+                        decoration: BoxDecoration(
+                          color: Colors.orange.shade50,
+                          borderRadius: BorderRadius.circular(6),
+                        ),
+                        child: Text(
+                          "🔥 ${it.promoType}",
+                          style: TextStyle(
+                            fontSize: 11,
+                            fontWeight: FontWeight.w600,
+                            color: Colors.orange.shade800,
+                          ),
+                        ),
                       ),
-                    ),
-                  ),
+                  ],
+                ),
                 Text(
                   rupiah(it.subtotalJual),
                   style: const TextStyle(fontSize: 14),

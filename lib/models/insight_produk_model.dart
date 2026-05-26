@@ -11,6 +11,8 @@ class ProductInsightResponse {
   final Trend trend;
   final Window7d window7d;
   final Promo promoProduct;
+  final RestockInfo? restockInfo;
+  final List<CTAEngine> ctaEngine;
 
   ProductInsightResponse({
     required this.product,
@@ -25,6 +27,8 @@ class ProductInsightResponse {
     required this.trend,
     required this.window7d,
     required this.promoProduct,
+    required this.restockInfo,
+    required this.ctaEngine,
   });
 
   factory ProductInsightResponse.fromJson(Map<String, dynamic> json) {
@@ -42,6 +46,51 @@ class ProductInsightResponse {
       trend: Trend.fromJson(json['summary']['metrics']['trend']),
       window7d: Window7d.fromJson(json['summary']['metrics']['window_7d']),
       promoProduct: Promo.fromJson(json['promo']),
+      restockInfo: json["summary"]?["metrics"]?["restock_info"] != null
+          ? RestockInfo.fromJson(
+              json["summary"]["metrics"]["restock_info"],
+            )
+          : null,
+      ctaEngine: json['summary']['decision']['cta_engine'] != null ? (json['summary']['decision']['cta_engine'] as List).map((e) => CTAEngine.fromJson(e)).toList() : [],
+    );
+  }
+}
+
+class CTAEngine {
+  final String type;
+  final String label;
+
+  CTAEngine({
+    required this.type,
+    required this.label,
+  });
+
+  factory CTAEngine.fromJson(Map<String, dynamic> json) {
+    return CTAEngine(
+      label: json['label'],
+      type: json['type'],
+    );
+  }
+}
+
+class RestockInfo {
+  final num avgInterval;
+  final num lastInterval;
+  final num minInterval;
+  final int count;
+  RestockInfo({
+    required this.avgInterval,
+    required this.lastInterval,
+    required this.minInterval,
+    required this.count,
+  });
+
+  factory RestockInfo.fromJson(Map<String, dynamic> json) {
+    return RestockInfo(
+      avgInterval: json['avg_interval'] ?? 0,
+      lastInterval: json['last_interval'] ?? 0,
+      minInterval: json['min_interval'] ?? 0,
+      count: json['count'] ?? 0,
     );
   }
 }
@@ -49,10 +98,13 @@ class ProductInsightResponse {
 class Promo {
   final bool isPromo;
   final String? promoType;
-  final double? promoPrice;
+  final num? promoPrice;
   final DateTime? startDate;
   final DateTime? endDate;
   final String? promoStatus;
+  final int? customQty;
+  final int? usedQty;
+  final String? promoScope;
 
   Promo({
     required this.isPromo,
@@ -61,6 +113,9 @@ class Promo {
     required this.startDate,
     required this.endDate,
     required this.promoStatus,
+    required this.customQty,
+    required this.usedQty,
+    required this.promoScope,
   });
 
   factory Promo.fromJson(Map<String, dynamic> json) {
@@ -71,6 +126,9 @@ class Promo {
       startDate: json['start_date'] != null ? DateTime.parse(json['start_date']) : null,
       endDate: json['end_date'] != null ? DateTime.parse(json['end_date']) : null,
       promoStatus: json['promo_status'],
+      customQty: json['custom_qty'] ?? 0,
+      usedQty: json['used_qty'] ?? 0,
+      promoScope: json['promo_scope'],
     );
   }
 }

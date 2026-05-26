@@ -99,7 +99,7 @@ class ProductTableReport extends StatelessWidget {
                     final isActive = activeProductId == item.kodeProduk;
 
                     return HoverWrapper(
-                      scale: 1.02,
+                      scale: 1.0,
                       enabled: !isScrolling,
                       hoverDelay: const Duration(milliseconds: 300),
                       child: AnimatedContainer(

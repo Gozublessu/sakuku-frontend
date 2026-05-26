@@ -9,6 +9,7 @@ import 'package:sakuku_desktop/pages/productpage/widgets/product_action_dialog.d
 import 'package:sakuku_desktop/pages/productpage/widgets/tambah_produk_dialog.dart';
 
 import 'package:sakuku_desktop/pages/productpage/widgets/produk_table.dart';
+import 'package:sakuku_desktop/utils/helper_page.dart';
 
 import 'package:sakuku_desktop/utils/hover_wrapper.dart';
 
@@ -100,7 +101,9 @@ class _ProdukPageState extends State<ProdukPage> {
     final result = await FilePicker.platform.pickFiles(
       type: FileType.custom,
       allowedExtensions: [
-        'xlsx'
+        'xlsx',
+        'xls',
+        'csv',
       ],
     );
 
@@ -332,33 +335,6 @@ class _ProdukPageState extends State<ProdukPage> {
     String? tempCategory = provider.selectedCategory;
     String? movementCategory = provider.movementCategory;
     bool tempLowStock = provider.isLowStockMode;
-
-    final List<String> categories = [
-      // "All",
-      "FOOD",
-      "DRINK",
-      "SHAMPOO",
-      "BODYWASH",
-      "COSMETIC",
-      "HANDBODY",
-      "FACIALFOAM",
-      "SNACKS",
-      "ORALCARE",
-      "FEMINIME HYGIENE",
-      "CONDIMENTS",
-      "FORMULA",
-    ];
-
-    // final List<String> movement = [
-    //   // "All",
-    //   "FAST",
-    //   "NORMAL",
-    //   "FLASH SPIKE",
-    //   "BULK PURCHASE PATTERN",
-    //   "BURST DEMAND",
-    //   "SPIKE PRODUCT",
-    //   "NEW",
-    // ];
 
     showDialog(
       context: context,

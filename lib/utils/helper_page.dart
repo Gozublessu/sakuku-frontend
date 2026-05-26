@@ -83,62 +83,27 @@ class ProductAction {
   });
 }
 
-List<ProductAction> generateActions(
-  List<String> reasons,
-) {
-  final actions = <ProductAction>[];
+final List<String> categories = [
+  // "All",
+  "FOOD",
+  "DRINK",
+  "SHAMPOO",
+  "BODYWASH",
+  "COSMETIC",
+  "HANDBODY",
+  "FACIALFOAM",
+  "SNACKS",
+  "ORALCARE",
+  "FEMINIME HYGIENE",
+  "CONDIMENTS",
+  "FORMULA",
+];
 
-  final has = reasons.contains;
-
-  // 🔥 RESTOCK
-  if (has("CRITICAL STOCK") || has("LOW STOCK")) {
-    actions.add(
-      ProductAction(
-        label: "Restock",
-        icon: Icons.inventory_2,
-        type: "RESTOCK",
-      ),
-    );
-  }
-
-  if (has("LOW STOCK") && has("STABLE DEMAND")) {
-    actions.add(
-      ProductAction(
-        label: "Restock",
-        icon: Icons.inventory_2,
-        type: "RESTOCK",
-      ),
-    );
-  }
-
-  // 🔥 PROMO
-  if (has("OVER STOCK") && has("MOVEMENT:SLOW")) {
-    actions.add(
-      ProductAction(
-        label: "Create Promo",
-        icon: Icons.local_offer,
-        type: "PROMO",
-      ),
-    );
-  }
-
-  // 🔥 CAMPAIGN
-  if (has("STABLE DEMAND") && has("HIGH STOCK")) {
-    actions.add(
-      ProductAction(
-        label: "Campaign Push",
-        icon: Icons.campaign,
-        type: "PROMO",
-      ),
-    );
-  }
-  if (has("DECLINING DEMAND") && has("OVER STOCK")) {
-    actions.add(ProductAction(
-      label: "Campaign Push",
-      icon: Icons.campaign,
-      type: "PROMO",
-    ));
-  }
-
-  return actions;
-}
+final List<String> movement = [
+  // "All",
+  "FAST",
+  "NORMAL",
+  "NEW",
+  "NO DATA",
+  "SLOW",
+];

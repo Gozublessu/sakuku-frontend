@@ -22,6 +22,10 @@ class PromoBadge extends StatelessWidget {
       return _scheduledPromo();
     }
 
+    if (promo.promoStatus == "EXHAUSTED") {
+      return _exhaustedPromo();
+    }
+
     return const SizedBox.shrink();
   }
 
@@ -86,6 +90,20 @@ class PromoBadge extends StatelessWidget {
                   color: Colors.orange.shade900,
                 ),
               ),
+              if (data.promoProduct.promoScope == "CUSTOM") ...[
+                const SizedBox(width: 6),
+                Text(
+                  "${data.promoProduct.usedQty}"
+                  "/"
+                  "${data.promoProduct.customQty} "
+                  "quota claimed",
+                  style: TextStyle(
+                    fontSize: 12,
+                    fontWeight: FontWeight.w700,
+                    color: Colors.grey[600],
+                  ),
+                ),
+              ],
             ],
           ),
           const SizedBox(width: 8),
@@ -94,7 +112,7 @@ class PromoBadge extends StatelessWidget {
               data.promoProduct.endDate,
             ),
             style: TextStyle(
-              fontSize: 11,
+              fontSize: 12,
               color: Colors.grey[600],
             ),
           ),
@@ -145,6 +163,57 @@ class PromoBadge extends StatelessWidget {
             style: TextStyle(
               fontSize: 11,
               color: Colors.grey[600],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _exhaustedPromo() {
+    return Container(
+      margin: const EdgeInsets.only(
+        top: 6,
+        bottom: 4,
+      ),
+      padding: const EdgeInsets.symmetric(
+        horizontal: 10,
+        vertical: 6,
+      ),
+      decoration: BoxDecoration(
+        color: Colors.blue,
+        borderRadius: BorderRadius.circular(8),
+        border: Border.all(
+          color: Colors.blueAccent.shade100,
+        ),
+      ),
+      child: Row(
+        children: [
+          Icon(
+            Icons.verified_rounded,
+            color: Colors.white,
+            size: 16,
+          ),
+          const SizedBox(width: 6),
+          Text(
+            "\"${data.promoProduct.promoType}\" "
+            "Campaign finished successfully.",
+            style: TextStyle(
+              fontSize: 13,
+              fontWeight: FontWeight.w700,
+              color: Colors.white,
+            ),
+          ),
+          const SizedBox(width: 6),
+          Text(
+            "${data.promoProduct.usedQty}"
+            "/"
+            "${data.promoProduct.customQty} "
+            "quota claimed",
+            style: TextStyle(
+              fontSize: 12,
+              fontWeight: FontWeight.w700,
+              color: Colors.white,
             ),
           ),
         ],

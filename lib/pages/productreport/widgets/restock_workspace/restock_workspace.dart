@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:sakuku_desktop/models/insight_produk_model.dart';
 import 'package:sakuku_desktop/models/restock_model.dart';
+import 'package:sakuku_desktop/pages/productreport/widgets/restock_workspace/restock_history_card.dart';
 import 'package:sakuku_desktop/providers/product_insight_provider.dart';
 import 'package:sakuku_desktop/providers/product_provider.dart';
 import 'package:sakuku_desktop/utils/helper_page.dart';
@@ -48,6 +49,8 @@ class _RestockWorkSpace extends State<RestockWorkspacePage> {
     final product = widget.insight.product;
     final currentStock = widget.insight.product.stok;
     final buyPrice = widget.insight.product.hargaBeli;
+    final restockHistory = widget.insight.restockHistory;
+    final avgInterval = widget.insight.restockInfo;
 
     final updatedBuyPrice = updatePricing
         ? parseRupiah(
@@ -105,6 +108,11 @@ class _RestockWorkSpace extends State<RestockWorkspacePage> {
               margin: "${product.marginPersen.toStringAsFixed(1)}%",
               stock: "${product.stok} Pcs",
               statCard: const SizedBox(),
+            ),
+            const SizedBox(height: 12),
+            RestockHistoryCard(
+              histories: restockHistory,
+              avgInterval: avgInterval?.avgInterval ?? 0,
             ),
             const SizedBox(height: 12),
             Container(

@@ -293,6 +293,7 @@ class _ProductReportPageState extends State<ProductreportPage> {
 
   Widget buildCardIsight() {
     final provider = context.watch<DeepInsightProvider>();
+
     return Container(
       width: 900,
       decoration: BoxDecoration(
@@ -319,6 +320,8 @@ class _ProductReportPageState extends State<ProductreportPage> {
         onCampaignPush: () {
           setState(() {});
         },
+        histories: provider.insight?.restockHistory ?? [],
+        avgInterval: provider.insight?.restockInfo?.avgInterval ?? 0,
       ),
     );
   }
@@ -329,31 +332,6 @@ class _ProductReportPageState extends State<ProductreportPage> {
     String? tempCategory = provider.selectedCategory;
     String? movementCategory = provider.movementCategory;
     bool tempLowStock = provider.isLowStockMode;
-
-    final List<String> categories = [
-      // "All",
-      "FOOD",
-      "DRINK",
-      "SHAMPOO",
-      "BODYWASH",
-      "COSMETIC",
-      "HANDBODY",
-      "FACIALFOAM",
-      "SNACKS",
-      "ORALCARE",
-      "FEMINIME HYGIENE",
-      "CONDIMENTS",
-      "FORMULA",
-    ];
-
-    final List<String> movement = [
-      // "All",
-      "FAST",
-      "NORMAL",
-      "NEW",
-      "NO DATA",
-      "SLOW",
-    ];
 
     showDialog(
       context: context,

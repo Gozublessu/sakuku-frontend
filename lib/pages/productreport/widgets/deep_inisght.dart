@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:sakuku_desktop/models/insight_produk_model.dart';
 import 'package:sakuku_desktop/pages/helper/info_card.dart';
 import 'package:sakuku_desktop/pages/productreport/widgets/helper_page.dart';
+import 'package:sakuku_desktop/pages/productreport/widgets/restock_workspace/restock_history_card.dart';
 import 'package:sakuku_desktop/providers/product_insight_provider.dart';
 import 'package:sakuku_desktop/utils/helper_page.dart';
 
@@ -18,12 +20,16 @@ class CardDeepInsightReport extends StatelessWidget {
   final VoidCallback? onCreatePromo;
   final VoidCallback? onRestock;
   final VoidCallback? onCampaignPush;
+  final List<RestockHistory> histories;
+  final num avgInterval;
 
   const CardDeepInsightReport({
     super.key,
     required this.onCreatePromo,
     required this.onRestock,
     required this.onCampaignPush,
+    required this.histories,
+    required this.avgInterval,
   });
 
   @override
@@ -56,7 +62,7 @@ class CardDeepInsightReport extends StatelessWidget {
 
         final data = provider.insight!;
         final action = data.decision.finalAction;
-        final actions = generateActions(data.decision.reasons);
+        final actions = data.ctaEngine;
 
         final baseColor = actionColors[action] ?? Colors.grey;
 
@@ -191,94 +197,171 @@ class CardDeepInsightReport extends StatelessWidget {
                 const SizedBox(height: 16),
 
                 // 🔥 ADVANCED DETAILS
-                ExpansionTile(
-                  tilePadding: EdgeInsets.zero,
-                  minTileHeight: 0,
-                  childrenPadding: const EdgeInsets.only(
-                    left: 5,
-                    right: 12,
-                    bottom: 12,
+                Theme(
+                  data: Theme.of(context).copyWith(
+                    dividerColor: Colors.transparent,
                   ),
-                  title: const Text(
-                    "Advanced Details",
-                    style: TextStyle(
-                      fontWeight: FontWeight.bold,
-                      fontSize: 15,
+                  child: ExpansionTile(
+                    tilePadding: EdgeInsets.zero,
+                    minTileHeight: 0,
+                    childrenPadding: const EdgeInsets.only(
+                      left: 5,
+                      right: 12,
+                      bottom: 12,
                     ),
-                  ),
-                  children: [
-                    Align(
-                      alignment: Alignment.centerLeft,
-                      child: Wrap(
-                        alignment: WrapAlignment.start,
-                        spacing: 12,
-                        runSpacing: 12,
-                        children: [
-                          _infoCard("Selling Days", "${data.metricsLifeTime.selling}"),
-                          _infoCard("Lost Days", "${data.metricsLifeTime.lostDay}"),
-                          _infoCard("Active Days", "${data.metricsLifeTime.daysActive}"),
-                          _infoCard("Transaction", "${data.metricsLifeTime.transactionCount}"),
-                          _infoCard("Category", data.product.kategori),
-                          _infoCard("Buy Price", rupiah(data.product.hargaBeli)),
-                          _infoCard("Sell Price", rupiah(data.product.hargaJual)),
-                          _infoCard("Total Selling", rupiah(data.summary.totalJual)),
-                          _infoCard("Margin Per Pcs", rupiah(data.product.marginRp)),
-                          _infoCard("Supplier", "No Brand"),
-                        ],
+                    title: const Text(
+                      "Advanced Details",
+                      style: TextStyle(
+                        fontWeight: FontWeight.bold,
+                        fontSize: 15,
                       ),
                     ),
-                  ],
+                    children: [
+                      Align(
+                        alignment: Alignment.centerLeft,
+                        child: Wrap(
+                          alignment: WrapAlignment.start,
+                          spacing: 12,
+                          runSpacing: 12,
+                          children: [
+                            _infoCard("Selling Days", "${data.metricsLifeTime.selling}"),
+                            _infoCard("Lost Days", "${data.metricsLifeTime.lostDay}"),
+                            _infoCard("Active Days", "${data.metricsLifeTime.daysActive}"),
+                            _infoCard("Transaction", "${data.metricsLifeTime.transactionCount}"),
+                            _infoCard("Category", data.product.kategori),
+                            _infoCard("Buy Price", rupiah(data.product.hargaBeli)),
+                            _infoCard("Sell Price", rupiah(data.product.hargaJual)),
+                            _infoCard("Total Selling", rupiah(data.summary.totalJual)),
+                            _infoCard("Margin Per Pcs", rupiah(data.product.marginRp)),
+                            _infoCard("Supplier", "No Brand"),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
-                ExpansionTile(
-                  tilePadding: EdgeInsets.zero,
-                  minTileHeight: 0,
-                  childrenPadding: const EdgeInsets.only(
-                    left: 5,
-                    right: 12,
-                    bottom: 12,
+                Theme(
+                  data: Theme.of(context).copyWith(
+                    dividerColor: Colors.transparent,
                   ),
-                  title: const Text(
-                    "Recommended Actions",
-                    style: TextStyle(
-                      fontWeight: FontWeight.bold,
-                      fontSize: 15,
+                  child: ExpansionTile(
+                    tilePadding: EdgeInsets.zero,
+                    minTileHeight: 0,
+                    childrenPadding: const EdgeInsets.only(
+                      left: 5,
+                      right: 12,
+                      bottom: 12,
                     ),
-                  ),
-                  children: [
-                    Align(
-                      alignment: Alignment.centerLeft,
-                      child: Wrap(
-                        spacing: 12,
-                        runSpacing: 12,
-                        children: actions.map((action) {
-                          return ElevatedButton.icon(
-                            onPressed: () {
-                              if (action.type == "PROMO") {
-                                onCreatePromo?.call();
-                              } else if (action.type == "RESTOCK") {
-                                onRestock?.call();
-                              } else if (action.type == "CAMPAIGN") {
-                                onCampaignPush?.call();
-                              }
-                            },
-                            icon: Icon(action.icon),
-                            label: Text(action.label),
-                          );
-                        }).toList(),
+                    title: const Text(
+                      "History Restock",
+                      style: TextStyle(
+                        fontWeight: FontWeight.bold,
+                        fontSize: 15,
                       ),
                     ),
-                    if (actions.isEmpty)
-                      Container(
-                        padding: const EdgeInsets.all(12),
-                        decoration: BoxDecoration(
-                          color: Colors.green.shade50,
-                          borderRadius: BorderRadius.circular(12),
+                    children: [
+                      RestockHistoryCard(
+                        histories: histories,
+                        avgInterval: avgInterval,
+                      ),
+                    ],
+                  ),
+                ),
+                if (data.promoProduct.isPromo)
+                  Theme(
+                    data: Theme.of(context).copyWith(
+                      dividerColor: Colors.transparent,
+                    ),
+                    child: ExpansionTile(
+                      tilePadding: EdgeInsets.zero,
+                      minTileHeight: 0,
+                      childrenPadding: const EdgeInsets.only(
+                        left: 5,
+                        right: 12,
+                        bottom: 12,
+                      ),
+                      title: const Text(
+                        "Detail Promo",
+                        style: TextStyle(
+                          fontWeight: FontWeight.bold,
+                          fontSize: 15,
                         ),
-                        child: const Text(
-                          "No immediate action required.",
+                      ),
+                      children: [
+                        Align(
+                          alignment: Alignment.centerLeft,
+                          child: Wrap(
+                            alignment: WrapAlignment.start,
+                            spacing: 12,
+                            runSpacing: 12,
+                            children: [
+                              _infoCard("Promo Type", data.promoProduct.promoType ?? "-"),
+                              _infoCard("Promo Price", data.promoProduct.promoPrice != null ? rupiah(data.promoProduct.promoPrice!) : "-"),
+                              _infoCard("Start", formatDate2(data.promoProduct.startDate)),
+                              _infoCard("End", formatDate2(data.promoProduct.endDate)),
+                              _infoCard("Promo Scope", data.promoProduct.promoScope.toString()),
+                              _infoCard("Used Qty", data.promoProduct.usedQty?.toString() ?? "-"),
+                            ],
+                          ),
                         ),
-                      )
-                  ],
+                      ],
+                    ),
+                  ),
+                Theme(
+                  data: Theme.of(context).copyWith(
+                    dividerColor: Colors.transparent,
+                  ),
+                  child: ExpansionTile(
+                    tilePadding: EdgeInsets.zero,
+                    minTileHeight: 0,
+                    childrenPadding: const EdgeInsets.only(
+                      left: 5,
+                      right: 12,
+                      bottom: 12,
+                    ),
+                    title: const Text(
+                      "Recommended Actions",
+                      style: TextStyle(
+                        fontWeight: FontWeight.bold,
+                        fontSize: 15,
+                      ),
+                    ),
+                    children: [
+                      Align(
+                        alignment: Alignment.centerLeft,
+                        child: Wrap(
+                          spacing: 12,
+                          runSpacing: 12,
+                          children: actions.map((action) {
+                            return ElevatedButton.icon(
+                              onPressed: () {
+                                if (action.type == "PROMO") {
+                                  onCreatePromo?.call();
+                                } else if (action.type == "RESTOCK") {
+                                  onRestock?.call();
+                                } else if (action.type == "CAMPAIGN") {
+                                  onCampaignPush?.call();
+                                }
+                              },
+                              icon: Icon(getCTAIcon(action.type)),
+                              label: Text(action.label),
+                            );
+                          }).toList(),
+                        ),
+                      ),
+                      if (actions.isEmpty)
+                        Container(
+                          padding: const EdgeInsets.all(12),
+                          decoration: BoxDecoration(
+                            color: Colors.green.shade50,
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          child: const Text(
+                            "No immediate action required.",
+                          ),
+                        )
+                    ],
+                  ),
                 ),
               ],
             ),
@@ -286,6 +369,22 @@ class CardDeepInsightReport extends StatelessWidget {
         );
       },
     );
+  }
+
+  IconData getCTAIcon(String type) {
+    switch (type) {
+      case "PROMO":
+        return Icons.local_offer;
+
+      case "RESTOCK":
+        return Icons.inventory_2;
+
+      case "CAMPAIGN":
+        return Icons.campaign;
+
+      default:
+        return Icons.info;
+    }
   }
 
   Widget _metricBox(String label, dynamic value) {
