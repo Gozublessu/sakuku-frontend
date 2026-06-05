@@ -2,13 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:sakuku_desktop/core/chart_range.dart';
 import 'package:sakuku_desktop/pages/dashboard/widgets/best_seller_card.dart';
-import 'package:sakuku_desktop/pages/dashboard/widgets/highlight_new_product.dart';
-import 'package:sakuku_desktop/pages/dashboard/widgets/highlight_status.dart';
-import 'package:sakuku_desktop/pages/dashboard/widgets/highlight_stock_card.dart';
 import 'package:sakuku_desktop/pages/dashboard/widgets/summary_card.dart';
 import 'package:sakuku_desktop/providers/low_stock_provider.dart';
 import 'package:sakuku_desktop/providers/tier_list_provider.dart';
 import 'package:sakuku_desktop/providers/transactionListProvider.dart';
+import 'package:sakuku_desktop/pages/dashboard/widgets/business_feed_billboard.dart';
 
 class DashboardPage extends StatefulWidget {
   const DashboardPage({super.key});
@@ -40,6 +38,9 @@ class _DashboardPageState extends State<DashboardPage> {
       dashboardProvider.fetchUpdate();
       dashboardProvider.getDeadStock();
       dashboardProvider.getNewProduct();
+      dashboardProvider.fetchTopMover();
+      dashboardProvider.productPromo();
+      dashboardProvider.loadCapital();
     });
   }
 
@@ -53,20 +54,27 @@ class _DashboardPageState extends State<DashboardPage> {
         children: [
           _buildCardLeft(),
           const SizedBox(width: 15),
-          Padding(
-            padding: const EdgeInsets.only(top: 92),
-            child: _buildCardMid(),
+
+          const Expanded(
+            child: Padding(
+              padding: EdgeInsets.only(top: 90),
+              child: BusinessFeedBillboard(),
+            ),
           ),
-          const SizedBox(width: 15),
-          Padding(
-            padding: const EdgeInsets.only(top: 92),
-            child: HighlightStatus(),
-          ),
-          const SizedBox(width: 15),
-          Padding(
-            padding: const EdgeInsets.only(top: 92),
-            child: HighlightBestAlltime(),
-          ),
+          // Padding(
+          //   padding: const EdgeInsets.only(top: 92),
+          //   child: _buildCardMid(),
+          // ),
+          // const SizedBox(width: 15),
+          // Padding(
+          //   padding: const EdgeInsets.only(top: 92),
+          //   child: HighlightStatus(),
+          // ),
+          // const SizedBox(width: 15),
+          // Padding(
+          //   padding: const EdgeInsets.only(top: 92),
+          //   child: HighlightBestAlltime(),
+          // ),
         ],
       ),
     );
@@ -104,13 +112,13 @@ class _DashboardPageState extends State<DashboardPage> {
     );
   }
 
-  Widget _buildCardMid() {
-    return ConstrainedBox(
-        constraints: const BoxConstraints(maxHeight: 800),
-        child: Column(
-          children: [
-            StockLowCard(),
-          ],
-        ));
-  }
+  // Widget _buildCardMid() {
+  //   return ConstrainedBox(
+  //       constraints: const BoxConstraints(maxHeight: 800),
+  //       child: Column(
+  //         children: [
+  //           StockLowCard(),
+  //         ],
+  //       ));
+  // }
 }

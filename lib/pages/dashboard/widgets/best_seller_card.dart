@@ -1,10 +1,64 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:sakuku_desktop/providers/tier_list_provider.dart';
-import 'package:sakuku_desktop/utils/hover_wrapper.dart';
 
-class BestSellerCard extends StatelessWidget {
+class BestSellerCard extends StatefulWidget {
   const BestSellerCard({super.key});
+
+  @override
+  State<BestSellerCard> createState() => _BestSellerCardState();
+}
+
+class _BestSellerCardState extends State<BestSellerCard> {
+  int currentIndex = 0;
+  bool isAnimating = false;
+
+  Timer? sliderTimer;
+  @override
+  void initState() {
+    super.initState();
+
+    sliderTimer = Timer.periodic(
+      const Duration(seconds: 3),
+      (timer) {
+        final provider = context.read<TierListProvider>();
+
+        final items = provider.tierlist;
+
+        if (items.isEmpty) return;
+
+        /// 🔥 mulai anim keluar
+        setState(() {
+          isAnimating = true;
+        });
+
+        /// 🔥 tunggu fade out
+        Future.delayed(
+          const Duration(milliseconds: 300),
+          () {
+            if (!mounted) return;
+
+            setState(() {
+              /// 🔥 ganti item
+              currentIndex = (currentIndex + 1) % items.take(3).length;
+
+              /// 🔥 anim masuk
+              isAnimating = false;
+            });
+          },
+        );
+      },
+    );
+  }
+
+  @override
+  void dispose() {
+    sliderTimer?.cancel();
+
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -12,145 +66,178 @@ class BestSellerCard extends StatelessWidget {
     final items = provider.tierlist;
     final topItems = items.take(3).toList();
 
-    final totalTodayQty = topItems.fold<int>(
+    if (topItems.isEmpty) {
+      return Container(
+        height: 250,
+        width: 450,
+        padding: const EdgeInsets.all(20),
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(18),
+          gradient: const LinearGradient(
+            colors: [
+              Color(0xFF3B82F6),
+              Color(0xFF2563EB),
+            ],
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+          ),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.blue.withOpacity(0.18),
+              blurRadius: 20,
+              offset: const Offset(0, 10),
+            )
+          ],
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            /// HEADER
+            Text(
+              "Today's Market",
+              style: TextStyle(
+                color: Colors.white,
+                fontSize: 28,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+
+            const SizedBox(height: 4),
+            Text(
+              "No transactions yet today",
+              style: TextStyle(
+                color: Colors.white,
+                fontSize: 16,
+                fontWeight: FontWeight.w700,
+              ),
+            ),
+          ],
+        ),
+      );
+    }
+    final topItem = topItems[currentIndex];
+
+    final totalTodayQty = items.fold<int>(
       0,
       (sum, items) => sum + items.totalQty,
     );
 
+    final topPercentage = totalTodayQty == 0 ? 0 : (topItem.totalQty / totalTodayQty) * 100;
+
     return Container(
       height: 250,
-      width: 450,
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(16),
-        gradient: LinearGradient(
+        borderRadius: BorderRadius.circular(18),
+        gradient: const LinearGradient(
           colors: [
-            Color(0xFF2F89FF),
-            Color(0xFF5AA9FF),
+            Color(0xFF3B82F6),
+            Color(0xFF2563EB),
           ],
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
         ),
-        boxShadow: const [
-          BoxShadow(color: Colors.black26, blurRadius: 10, offset: Offset(0, 4)),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.blue.withOpacity(0.18),
+            blurRadius: 20,
+            offset: const Offset(0, 10),
+          )
         ],
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Text(
-            "Best Seller Today",
+          /// HEADER
+          Text(
+            "Today's Market",
             style: TextStyle(
-              fontSize: 18,
+              color: Colors.white,
+              fontSize: 28,
               fontWeight: FontWeight.bold,
-              color: Colors.white,
             ),
           ),
-          const SizedBox(height: 4),
-          const Text(
-            "Produk dengan penjualan tertinggi hari ini",
-            style: TextStyle(
-              fontSize: 12,
-              fontWeight: FontWeight.w500,
-              color: Colors.white,
-            ),
-          ),
-          const SizedBox(height: 12),
-          if (provider.isLoading)
-            const Text(
-              "Loading...",
-              style: TextStyle(fontSize: 12, color: Colors.white),
-            ),
-          if (!provider.isLoading && items.isEmpty)
-            const Center(
-              child: Padding(
-                padding: EdgeInsets.symmetric(vertical: 24),
-                child: Text(
-                  "Belum ada Produk terjual hari ini",
-                  style: TextStyle(
-                    fontSize: 14,
-                    color: Colors.white,
-                  ),
-                ),
-              ),
-            ),
-          ...List.generate(topItems.length, (index) {
-            final item = topItems[index];
-            final percentage = totalTodayQty > 0 ? (item.totalQty / totalTodayQty) * 100 : 0;
 
-            return Column(
+          const SizedBox(height: 4),
+
+          Text(
+            "${provider.totalSoldSku} active SKU • ${provider.totalQtySold} units moved",
+            style: TextStyle(
+              color: Colors.white.withOpacity(.85),
+              fontSize: 13,
+              fontWeight: FontWeight.w500,
+            ),
+          ),
+
+          const SizedBox(height: 4),
+
+          /// HERO
+          Center(
+            child: Column(
               children: [
-                HoverWrapper(
-                  scale: 1.05,
-                  child: Row(
-                    children: [
-                      Container(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 12,
-                          vertical: 6,
-                        ),
-                        decoration: BoxDecoration(
-                          color: Colors.amberAccent,
-                          borderRadius: BorderRadius.circular(8),
-                        ),
-                        child: Text(
-                          "${index + 1}",
+                AnimatedSlide(
+                  duration: const Duration(milliseconds: 500),
+                  curve: Curves.easeInOutCubic,
+                  offset: isAnimating ? const Offset(0, .08) : Offset.zero,
+                  child: AnimatedOpacity(
+                    duration: const Duration(milliseconds: 500),
+                    opacity: isAnimating ? 0 : 1,
+                    child: Column(
+                      key: ValueKey(topItem.productId),
+                      children: [
+                        Text(
+                          "${topPercentage.toStringAsFixed(1)}%",
                           style: const TextStyle(
-                            fontSize: 12,
-                            fontWeight: FontWeight.bold,
                             color: Colors.white,
+                            fontSize: 52,
+                            fontWeight: FontWeight.w900,
+                            height: 1,
                           ),
                         ),
-                      ),
-                      const SizedBox(width: 12),
-                      Expanded(
-                        child: Text(
-                          item.namaProduk,
+                        const SizedBox(height: 4),
+                        Text(
+                          "Top Market Share",
+                          style: TextStyle(
+                            color: Colors.white.withOpacity(.9),
+                            fontSize: 12,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                        const SizedBox(height: 6),
+                        Text(
+                          topItem.namaProduk,
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
                           style: const TextStyle(
+                            color: Colors.white,
+                            fontSize: 16,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                        const SizedBox(height: 2),
+                        Text(
+                          "${topItem.totalQty} pcs moved today",
+                          style: TextStyle(
+                            color: Colors.white.withOpacity(.8),
                             fontSize: 12,
                             fontWeight: FontWeight.w500,
-                            color: Colors.white,
                           ),
                         ),
-                      ),
-                      Text(
-                        "${item.totalQty}pcs",
-                        style: TextStyle(
-                          fontSize: 12,
-                          fontWeight: FontWeight.bold,
-                          color: Colors.white,
-                        ),
-                      ),
-                      SizedBox(width: 15),
-                      Text(
-                        "${percentage.toStringAsFixed(0)}%",
-                        style: TextStyle(
-                          fontSize: 14,
-                          fontWeight: FontWeight.bold,
-                          color: Colors.white,
-                        ),
-                      ),
-                    ],
+                      ],
+                    ),
                   ),
                 ),
                 const SizedBox(height: 4),
-                ClipRRect(
-                  borderRadius: BorderRadius.circular(6),
-                  child: LinearProgressIndicator(
-                    value: item.totalQty / topItems.first.totalQty,
-                    minHeight: 6,
-                    backgroundColor: Colors.grey,
-                    color: Colors.white,
+                Text(
+                  "Leading today's movement",
+                  style: TextStyle(
+                    color: Colors.white.withOpacity(.8),
+                    fontSize: 12,
                   ),
                 ),
-                if (index < topItems.length - 1)
-                  const Padding(
-                    padding: EdgeInsets.symmetric(
-                      vertical: 4,
-                      horizontal: 10,
-                    ),
-                  ),
               ],
-            );
-          }),
+            ),
+          )
         ],
       ),
     );

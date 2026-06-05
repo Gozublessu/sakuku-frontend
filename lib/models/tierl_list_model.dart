@@ -23,3 +23,37 @@ class tierListItem {
     );
   }
 }
+
+class TierListSummary {
+  final int totalSkuSold;
+  final int totalQtySold;
+
+  TierListSummary({
+    required this.totalSkuSold,
+    required this.totalQtySold,
+  });
+
+  factory TierListSummary.fromJson(Map<String, dynamic> json) {
+    return TierListSummary(
+      totalSkuSold: json['total_sku_sold'] ?? 0,
+      totalQtySold: json['total_qty_sold'] ?? 0,
+    );
+  }
+}
+
+class TierListResponse {
+  final TierListSummary summary;
+  final List<tierListItem> items;
+
+  TierListResponse({
+    required this.summary,
+    required this.items,
+  });
+
+  factory TierListResponse.fromJson(Map<String, dynamic> json) {
+    return TierListResponse(
+      summary: TierListSummary.fromJson(json['summary']),
+      items: (json['items'] as List).map((e) => tierListItem.fromJson(e)).toList(),
+    );
+  }
+}

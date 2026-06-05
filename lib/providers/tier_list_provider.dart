@@ -15,9 +15,11 @@ class TierListProvider with ChangeNotifier {
 
   /// DATA STATE
   TierRange tierRange = TierRange.month;
+  int totalSoldSku = 0;
+  int totalQtySold = 0;
 
   /// OPTIONAL CACHE (biar swipe ga reload terus)
-  final Map<TierRange, List<tierListItem>> _cache = {};
+  final Map<TierRange, TierListResponse> _cache = {};
 
   /// =========================
   /// 🔥 SET PAGE (DARI SLIDE)
@@ -55,7 +57,14 @@ class TierListProvider with ChangeNotifier {
     try {
       /// ✅ CACHE HIT
       if (_cache.containsKey(tierRange)) {
-        tierlist = _cache[tierRange]!;
+        final cached = _cache[tierRange]!;
+
+        tierlist = cached.items;
+
+        tierlist = cached.items;
+
+        totalSoldSku = cached.summary.totalSkuSold;
+        totalQtySold = cached.summary.totalQtySold;
         notifyListeners();
         return;
       }
@@ -68,7 +77,11 @@ class TierListProvider with ChangeNotifier {
 
       final res = await TierListApi.getTierList(rangeStr);
 
-      tierlist = res;
+      tierlist = res.items;
+
+      totalSoldSku = res.summary.totalSkuSold;
+      totalQtySold = res.summary.totalQtySold;
+
       _cache[tierRange] = res;
 
       isLoading = false;
@@ -145,7 +158,7 @@ class TierListProvider with ChangeNotifier {
 
     for (var range in TierRange.values) {
       final res = await TierListApi.getTierList(_mapRange(range));
-      print("RANGE $range → ${res.length}");
+      print("RANGE $range → ${res.items.length}");
       _cache[range] = res;
     }
 

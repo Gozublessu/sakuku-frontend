@@ -13,6 +13,7 @@ class ProductInsightResponse {
   final Promo promoProduct;
   final RestockInfo? restockInfo;
   final List<CTAEngine> ctaEngine;
+  final CTACapital? ctaCapital;
 
   ProductInsightResponse({
     required this.product,
@@ -29,6 +30,7 @@ class ProductInsightResponse {
     required this.promoProduct,
     required this.restockInfo,
     required this.ctaEngine,
+    this.ctaCapital,
   });
 
   factory ProductInsightResponse.fromJson(Map<String, dynamic> json) {
@@ -52,6 +54,31 @@ class ProductInsightResponse {
             )
           : null,
       ctaEngine: json['summary']['decision']['cta_engine'] != null ? (json['summary']['decision']['cta_engine'] as List).map((e) => CTAEngine.fromJson(e)).toList() : [],
+      ctaCapital: json['summary']['decision']['cta_capital'] != null
+          ? CTACapital.fromJson(
+              json['summary']['decision']['cta_capital'],
+            )
+          : null,
+    );
+  }
+}
+
+class CTACapital {
+  final String label;
+  final num idleCapital;
+  final num coverageDay;
+
+  CTACapital({
+    required this.label,
+    required this.idleCapital,
+    required this.coverageDay,
+  });
+
+  factory CTACapital.fromJson(Map<String, dynamic> json) {
+    return CTACapital(
+      label: json['label'],
+      idleCapital: json['idle_capital'],
+      coverageDay: json['coverage_day'],
     );
   }
 }
@@ -227,6 +254,7 @@ class SummaryData {
 
 class Classification {
   final String movement;
+  final String recentMovement;
   final String signalStock;
   final String signalProfit;
   final String detectDemand;
@@ -236,6 +264,7 @@ class Classification {
 
   Classification({
     required this.movement,
+    required this.recentMovement,
     required this.signalStock,
     required this.signalProfit,
     required this.detectDemand,
@@ -247,6 +276,7 @@ class Classification {
   factory Classification.fromJson(Map<String, dynamic> json) {
     return Classification(
       movement: json['movement'],
+      recentMovement: json['recent_movement'],
       signalStock: json['signal_stock'],
       signalProfit: json['signal_profit'],
       detectDemand: json['detect_demand'],

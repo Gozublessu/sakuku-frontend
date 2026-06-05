@@ -332,6 +332,7 @@ class _ProductReportPageState extends State<ProductreportPage> {
     String? tempCategory = provider.selectedCategory;
     String? movementCategory = provider.movementCategory;
     bool tempLowStock = provider.isLowStockMode;
+    bool isPromoMode = provider.isPromoMode;
 
     showDialog(
       context: context,
@@ -394,6 +395,14 @@ class _ProductReportPageState extends State<ProductreportPage> {
                       title: const Text("Low Stock Only"),
                       onChanged: (val) => setState(() => tempLowStock = val),
                     ),
+                    const SizedBox(height: 10),
+                    SwitchListTile(
+                      value: isPromoMode,
+                      title: const Text("Promo Only"),
+                      onChanged: (val) => setState(
+                        () => isPromoMode = val,
+                      ),
+                    ),
                     const SizedBox(height: 20),
                     Row(
                       children: [
@@ -405,6 +414,7 @@ class _ProductReportPageState extends State<ProductreportPage> {
                                 lowStock: false,
                                 category: null,
                                 movement: null,
+                                isPromo: false,
                               );
                               Navigator.pop(context);
                             },
@@ -420,6 +430,7 @@ class _ProductReportPageState extends State<ProductreportPage> {
                                 lowStock: tempLowStock,
                                 category: tempCategory,
                                 movement: movementCategory,
+                                isPromo: isPromoMode,
                               );
                               Navigator.pop(context);
                             },

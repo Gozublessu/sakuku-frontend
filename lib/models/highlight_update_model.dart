@@ -4,6 +4,7 @@ class HighlightUpdateModel {
   final bool type;
   final int qty;
   final DateTime createdAt;
+  final num cost;
 
   HighlightUpdateModel({
     required this.id,
@@ -11,6 +12,7 @@ class HighlightUpdateModel {
     required this.type,
     required this.qty,
     required this.createdAt,
+    required this.cost,
   });
 
   factory HighlightUpdateModel.fromJson(Map<String, dynamic> json) {
@@ -20,6 +22,7 @@ class HighlightUpdateModel {
       type: json['type'] as bool,
       qty: json['qty'] as int,
       createdAt: DateTime.parse(json['created_at']),
+      cost: json['cost_product'],
     );
   }
 }

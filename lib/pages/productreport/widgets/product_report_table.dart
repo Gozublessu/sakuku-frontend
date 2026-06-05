@@ -269,6 +269,9 @@ class ProductTableReport extends StatelessWidget {
       case "stable demand":
         return Colors.blue;
 
+      case "new demand signal":
+        return Colors.pinkAccent;
+
       default:
         return Colors.grey;
     }

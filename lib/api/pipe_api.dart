@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:dio/dio.dart';
+import 'package:sakuku_desktop/models/capital_model.dart';
 import 'package:sakuku_desktop/models/create_promo_model.dart';
 import 'package:sakuku_desktop/models/dead_stock_model.dart';
 import 'package:sakuku_desktop/models/highlight_update_model.dart';
@@ -14,6 +15,7 @@ import '../models/produk_model.dart';
 import '../models/tierl_list_model.dart';
 import 'package:intl/intl.dart';
 import '../models/insight_produk_model.dart';
+import '../models/promo_model.dart';
 
 final dio = Dio(BaseOptions(
   baseUrl: "http://127.0.0.1:8000",
@@ -41,6 +43,7 @@ Future<PaginatedProduct> getPaginated(
   String? category,
   String? movement,
   bool lowStock = false,
+  bool isPromo = false,
 }) async {
   final queryParams = {
     'page': page.toString(),
@@ -48,7 +51,8 @@ Future<PaginatedProduct> getPaginated(
     'search': search,
     if (category != null && category.isNotEmpty && category != 'All') 'category': category,
     if (movement != null && movement.isNotEmpty && movement != 'All') 'movement': movement,
-    if (lowStock) 'low_stock': 'true'
+    if (lowStock) 'low_stock': 'true',
+    if (isPromo) 'is_promo': 'true'
   };
 
   final uri = Uri.parse('$baseUrl/products/get_paginated_product').replace(
@@ -195,15 +199,15 @@ class TierListApi {
   static final dio = Dio(BaseOptions(baseUrl: "http://localhost:8000"));
 
   // RANGE DATE
-  static Future<List<tierListItem>> getTierList(String range) async {
-    final res = await dio.get(
+  static Future<TierListResponse> getTierList(String range) async {
+    final response = await dio.get(
       "/transaction/tierlist",
       queryParameters: {
         "range": range
       },
     );
 
-    return (res.data as List).map((e) => tierListItem.fromJson(e)).toList();
+    return TierListResponse.fromJson(response.data);
   }
 
   // ALL TIME
@@ -258,5 +262,18 @@ class DashboardService {
     final resp = await dio.get("/snapshot/newproduct");
     final List list = resp.data;
     return list.map((e) => NewProdukModel.fromJson(e)).toList();
+  }
+
+  Future<PromoModel> getPromoModel() async {
+    final resp = await dio.get("/products/promo");
+    return PromoModel.fromJson(resp.data);
+  }
+
+  Future<CapitalModel> getCapitalAlert() async {
+    final response = await dio.get(
+      '/products/capital-alert',
+    );
+
+    return CapitalModel.fromJson(response.data);
   }
 }

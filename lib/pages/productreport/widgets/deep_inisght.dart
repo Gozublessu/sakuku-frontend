@@ -63,8 +63,11 @@ class CardDeepInsightReport extends StatelessWidget {
         final data = provider.insight!;
         final action = data.decision.finalAction;
         final actions = data.ctaEngine;
+        final hasCapitalCTA = data.ctaCapital != null;
 
         final baseColor = actionColors[action] ?? Colors.grey;
+        // print("CTA CAPITAL = ${data.ctaCapital}");
+        // print("HAS CAPITAL = $hasCapitalCTA");
 
         return Container(
           padding: const EdgeInsets.all(12),
@@ -110,6 +113,15 @@ class CardDeepInsightReport extends StatelessWidget {
                           data.classification.movement,
                           style: TextStyle(
                             color: Colors.grey[600],
+                          ),
+                        ),
+                        const SizedBox(height: 10),
+                        Text(
+                          data.classification.recentMovement,
+                          style: TextStyle(
+                            color: Colors.grey[600],
+                            fontSize: 12,
+                            fontWeight: FontWeight.bold,
                           ),
                         ),
                         const SizedBox(height: 10),
@@ -304,6 +316,137 @@ class CardDeepInsightReport extends StatelessWidget {
                             ],
                           ),
                         ),
+                      ],
+                    ),
+                  ),
+
+                if (hasCapitalCTA)
+                  Theme(
+                    data: Theme.of(context).copyWith(
+                      dividerColor: Colors.transparent,
+                    ),
+                    child: ExpansionTile(
+                      tilePadding: EdgeInsets.zero,
+                      minTileHeight: 0,
+                      childrenPadding: const EdgeInsets.only(
+                        left: 5,
+                        right: 12,
+                        bottom: 12,
+                      ),
+                      title: const Text(
+                        "Inventory Capital",
+                        style: TextStyle(
+                          fontWeight: FontWeight.bold,
+                          fontSize: 15,
+                        ),
+                      ),
+                      children: [
+                        Container(
+                          padding: const EdgeInsets.all(16),
+                          decoration: BoxDecoration(
+                            color: Colors.orange.withOpacity(.08),
+                            borderRadius: BorderRadius.circular(14),
+                            border: Border.all(
+                              color: Colors.orange.withOpacity(.25),
+                            ),
+                          ),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              /// HEADER
+                              Row(
+                                children: [
+                                  Container(
+                                    padding: const EdgeInsets.all(8),
+                                    decoration: BoxDecoration(
+                                      color: Colors.orange.withOpacity(.15),
+                                      borderRadius: BorderRadius.circular(10),
+                                    ),
+                                    child: const Icon(
+                                      Icons.account_balance_wallet_outlined,
+                                      size: 20,
+                                      color: Colors.orange,
+                                    ),
+                                  ),
+                                  const SizedBox(width: 10),
+                                  const Text(
+                                    "Capital Exposure",
+                                    style: TextStyle(
+                                      fontSize: 16,
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
+                                ],
+                              ),
+
+                              const SizedBox(height: 20),
+
+                              /// HERO NUMBER
+                              Text(
+                                rupiah(data.ctaCapital?.idleCapital ?? 0),
+                                style: const TextStyle(
+                                  fontSize: 30,
+                                  fontWeight: FontWeight.w900,
+                                ),
+                              ),
+
+                              const SizedBox(height: 4),
+
+                              Text(
+                                "Estimated capital tied up in inventory",
+                                style: TextStyle(
+                                  color: Colors.grey.shade600,
+                                  fontSize: 12,
+                                ),
+                              ),
+
+                              const SizedBox(height: 20),
+
+                              Row(
+                                children: [
+                                  Expanded(
+                                    child: _infoCard(
+                                      "Coverage",
+                                      "${data.ctaCapital?.coverageDay ?? 0} Days",
+                                    ),
+                                  ),
+                                  const SizedBox(width: 12),
+                                  Expanded(
+                                    child: Container(
+                                      padding: const EdgeInsets.symmetric(
+                                        horizontal: 12,
+                                        vertical: 14,
+                                      ),
+                                      decoration: BoxDecoration(
+                                        color: Colors.orange.withOpacity(.12),
+                                        borderRadius: BorderRadius.circular(12),
+                                      ),
+                                      child: const Row(
+                                        children: [
+                                          Icon(
+                                            Icons.warning_amber_rounded,
+                                            size: 18,
+                                            color: Colors.orange,
+                                          ),
+                                          SizedBox(width: 8),
+                                          Expanded(
+                                            child: Text(
+                                              "FREE UP CAPITAL",
+                                              style: TextStyle(
+                                                fontWeight: FontWeight.bold,
+                                                fontSize: 12,
+                                              ),
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ],
+                          ),
+                        )
                       ],
                     ),
                   ),

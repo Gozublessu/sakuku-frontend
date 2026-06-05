@@ -21,6 +21,7 @@ class ProductProvider with ChangeNotifier {
   bool isLoading = false;
   bool hasMore = true;
   bool isLowStockMode = false;
+  bool isPromoMode = false;
   String search = "";
   String? selectedCategory;
   String? movementCategory;
@@ -40,6 +41,7 @@ class ProductProvider with ChangeNotifier {
       category: selectedCategory,
       movement: movementCategory,
       lowStock: isLowStockMode,
+      isPromo: isPromoMode,
     );
 
     products = resp.data;
@@ -65,6 +67,7 @@ class ProductProvider with ChangeNotifier {
       category: selectedCategory,
       movement: movementCategory,
       lowStock: isLowStockMode,
+      isPromo: isPromoMode,
     );
 
     products.addAll(resp.data);
@@ -87,19 +90,33 @@ class ProductProvider with ChangeNotifier {
     // notifyListeners();
   }
 
-  void toggleLowStockFilter() {
-    isLowStockMode = !isLowStockMode;
-    loadInitial();
-  }
+  // void toggleLowStockFilter() {
+  //   isLowStockMode = !isLowStockMode;
+  //   loadInitial();
+  // }
+
+  // void toggleIsPromoFilter() {
+  //   isPromoMode = !isPromoMode;
+  //   loadInitial();
+  // }
 
   Future<void> applyFilter({
     String? category,
     String? movement,
-    required bool lowStock,
+    bool? lowStock,
+    bool? isPromo,
   }) async {
     selectedCategory = category;
     movementCategory = movement;
-    isLowStockMode = lowStock;
+
+    if (lowStock != null) {
+      isLowStockMode = lowStock;
+    }
+
+    if (isPromo != null) {
+      isPromoMode = isPromo;
+    }
+
     await loadInitial();
   }
 
@@ -136,6 +153,9 @@ class ProductProvider with ChangeNotifier {
   }
 
   String get summaryLabel {
+    if (isPromoMode) {
+      return "Promo Product";
+    }
     if (isLowStockMode) {
       return "Low Stock Products";
     }

@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:sakuku_desktop/models/capital_model.dart';
 import 'package:sakuku_desktop/models/dead_stock_model.dart';
 import 'package:sakuku_desktop/models/highlight_update_model.dart';
 import 'package:sakuku_desktop/models/new_produk_model.dart';
+import 'package:sakuku_desktop/models/promo_model.dart';
+import 'package:sakuku_desktop/models/tierl_list_model.dart';
 import '../api/pipe_api.dart';
 import '../models/low_stock.dart';
 
@@ -9,10 +12,13 @@ class DashboardProvider extends ChangeNotifier {
   final DashboardService service = DashboardService();
 
   LowStockResp? lowStock;
+  tierListItem? topMoverWeekly;
+  PromoModel? promoProduct;
   bool isLoading = false;
   bool isUpdateLoad = false;
   bool isUpDs = false;
   bool isUpNewProduk = false;
+  CapitalModel? capitalAlert;
   List<NewProdukModel> updatesNP = [];
   List<HighlightUpdateModel> updates = [];
   List<DeadStockModel> updatesDt = [];
@@ -29,6 +35,48 @@ class DashboardProvider extends ChangeNotifier {
 
     isLoading = false;
     notifyListeners();
+  }
+
+  Future<void> productPromo() async {
+    print("MASUK PRODUCT PROMO");
+    try {
+      final res = await service.getPromoModel();
+
+      print("PROMO API = $res");
+
+      promoProduct = res;
+
+      print("PROMO STATE = ${promoProduct?.promoLabel}");
+
+      notifyListeners();
+    } catch (e) {
+      print("PROMO ERROR = $e");
+    }
+  }
+
+  Future<void> loadCapital() async {
+    try {
+      final res = await service.getCapitalAlert();
+
+      capitalAlert = res;
+      notifyListeners();
+    } catch (e) {
+      print("CAPITAL ERROR = $e");
+    }
+  }
+
+  Future<void> fetchTopMover() async {
+    try {
+      final res = await TierListApi.getTierList("week");
+
+      if (res.items.isNotEmpty) {
+        topMoverWeekly = res.items.first;
+      }
+
+      notifyListeners();
+    } catch (e) {
+      print(e);
+    }
   }
 
   Future<void> fetchUpdate() async {
