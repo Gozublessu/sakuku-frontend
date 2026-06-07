@@ -11,41 +11,6 @@ import 'business_feed_item.dart';
 import 'business_feed_type.dart';
 
 class BusinessFeedFactory {
-  // static List<BusinessFeedItem> buildDummy() {
-  //   return [
-  //     BusinessFeedItem(
-  //       type: FeedType.capitalAlert,
-  //       title: "CAPITAL ALERT",
-  //       headline: "Rp 44.647.200",
-  //       subtitle: "Coverage 244 Hari",
-  //       description: "Modal diperkirakan tertahan cukup lama dalam inventory berdasarkan pola penjualan saat ini.",
-  //       icon: Icons.warning_rounded,
-  //       color: const Color(0xFFF97316),
-  //       actionLabel: "View Product",
-  //     ),
-  //     BusinessFeedItem(
-  //       type: FeedType.promoActive,
-  //       title: "PROMO ACTIVE",
-  //       headline: "Baby Happy 🎉",
-  //       subtitle: "3 Hari Tersisa",
-  //       description: "Promo sedang berjalan dan dipantau performanya untuk membantu percepatan penjualan.",
-  //       icon: Icons.local_offer_rounded,
-  //       color: const Color(0xFFEAB308),
-  //       actionLabel: "View Promo",
-  //     ),
-  //     BusinessFeedItem(
-  //       type: FeedType.topMoverWeekly,
-  //       title: "TOP MOVER WEEKLY",
-  //       headline: "Floridina Original",
-  //       subtitle: "124 pcs sold this week",
-  //       description: "Menjadi produk dengan kontribusi penjualan tertinggi selama minggu berjalan.",
-  //       icon: Icons.trending_up_rounded,
-  //       color: const Color(0xFF10B981),
-  //       actionLabel: "View Product",
-  //     ),
-  //   ];
-  // }
-
   static BusinessFeedItem? buildLowStock(
     LowStockResp? lowStock,
   ) {
@@ -64,6 +29,7 @@ class BusinessFeedFactory {
       icon: Icons.inventory_2_outlined,
       color: const Color(0xFFDC2626),
       actionLabel: "View Products",
+      actionType: FeedActionType.lowStock,
       scenes: null,
     );
   }
@@ -116,7 +82,7 @@ class BusinessFeedFactory {
       title: "TOP MOVER WEEKLY",
       headline: topMover.namaProduk,
       subtitle: "${topMover.totalQty} pcs sold this week",
-      description: "Produk dengan performa penjualan tertinggi selama periode berjalan.",
+      description: "Produk dengan performa penjualan tertinggi di minggu ini.",
       icon: Icons.trending_up_rounded,
       color: const Color(0xFF10B981),
       actionLabel: "View Product",
@@ -129,32 +95,46 @@ class BusinessFeedFactory {
   ) {
     if (promo == null) return null;
 
+    if (promo.promos.isEmpty) return null;
+
+    final isScheduled = promo.status == "SCHEDULED";
+
     return BusinessFeedItem(
-      type: FeedType.promoActive,
-      title: "PROMO ACTIVE",
-      headline: "${promo.activeCount} Active",
-      subtitle: "Campaign Running",
+      type: isScheduled ? FeedType.promoScheduled : FeedType.promoActive,
+      title: isScheduled ? "PROMO SCHEDULED" : "PROMO ACTIVE",
+      headline: isScheduled ? "${promo.schedule} Scheduled" : "${promo.activeCount} Active",
+      subtitle: isScheduled ? "Campaign Starting Soon" : "Campaign Running",
       icon: Icons.local_offer_rounded,
-      color: const Color(0xFFEAB308),
+      color: isScheduled ? Colors.pinkAccent : Colors.orangeAccent,
       actionLabel: "View Promo",
+      actionType: FeedActionType.promo,
       scenes: [
+        // BusinessFeedScene(
+        //   headline: "${promo.activeCount} Active Campaign",
+        //   subtitle: "Promotion currently running",
+        //   description: "${promo.schedule} scheduled campaign",
+        // ),
         BusinessFeedScene(
-          headline: "${promo.activeCount} Active Campaign",
-          subtitle: "Promotion currently running",
+          type: SceneType.showcase,
+          headline: isScheduled ? "${promo.schedule} Scheduled" : "${promo.activeCount} Active",
+          subtitle: isScheduled ? "Campaign Starting Soon" : "Campaign Running",
+          reveals: promo.promos.map(
+            (item) {
+              final saving = item.originalPrice - item.promoPrice;
+
+              return BusinessFeedReveal(
+                headline: item.promoLabel,
+                subtitle: item.namaProduk,
+                description: isScheduled ? "Start Tomorrow • Save ${rupiah(saving)}" : "${item.daysRemaining} Days Left • Save ${rupiah(saving)}",
+                notes: item.notes,
+              );
+            },
+          ).toList(),
         ),
         BusinessFeedScene(
-          headline: promo.promoLabel,
-          subtitle: "${promo.daysRemaining} Days Left",
-          description: "Campaign ending soon",
-        ),
-        BusinessFeedScene(
-          subtitle: "Normal Price",
-          headline: rupiah(promo.originalPrice),
-        ),
-        BusinessFeedScene(
-          subtitle: "Promo Price",
-          headline: rupiah(promo.promoPrice),
-          description: "Save ${rupiah((promo.originalPrice) - (promo.promoPrice))}",
+          headline: isScheduled ? "${promo.schedule} Scheduled" : "${promo.activeCount} Active",
+          subtitle: isScheduled ? "Campaign Starting Soon" : "Campaign Running",
+          description: isScheduled ? "Start Tomorrow" : "Days Left",
         ),
       ],
     );
@@ -194,7 +174,7 @@ class BusinessFeedFactory {
       headline: rupiah(capital.totalIdleCapital),
       subtitle: "${capital.totalProduct} Products • ${capital.top3Contribution}% Top 3",
       icon: Icons.account_balance_wallet_outlined,
-      color: Colors.orange,
+      color: Colors.deepOrange,
       scenes: [
         BusinessFeedScene(
           type: SceneType.showcase,
@@ -258,9 +238,6 @@ class BusinessFeedFactory {
     if (topMoverWeekly != null) {
       feeds.add(topMoverWeekly);
     }
-    print(
-      "PROMO = ${dashboard.promoProduct?.promoLabel}",
-    );
 
     final productPromo = buildPromo(
       dashboard.promoProduct,

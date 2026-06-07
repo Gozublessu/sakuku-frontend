@@ -46,8 +46,6 @@ class DashboardProvider extends ChangeNotifier {
 
       promoProduct = res;
 
-      print("PROMO STATE = ${promoProduct?.promoLabel}");
-
       notifyListeners();
     } catch (e) {
       print("PROMO ERROR = $e");

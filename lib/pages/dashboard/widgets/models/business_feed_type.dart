@@ -21,3 +21,12 @@ enum RevealPhase {
   presenting,
   parking,
 }
+
+enum FeedActionType {
+  promo,
+  // productReport,
+  // deepInsight,
+  // restock,
+  lowStock,
+  none,
+}

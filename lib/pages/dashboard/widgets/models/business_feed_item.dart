@@ -16,6 +16,7 @@ class BusinessFeedItem {
   final List<BusinessFeedScene>? scenes;
 
   final String? actionLabel;
+  final FeedActionType actionType;
 
   const BusinessFeedItem({
     required this.type,
@@ -29,6 +30,7 @@ class BusinessFeedItem {
     this.actionLabel,
     this.originalPrice,
     this.promoPrice,
+    this.actionType = FeedActionType.none,
   });
 }
 
@@ -52,10 +54,12 @@ class BusinessFeedReveal {
   final String headline;
   final String? subtitle;
   final String? description;
+  final String? notes;
 
   const BusinessFeedReveal({
     required this.headline,
     this.subtitle,
     this.description,
+    this.notes,
   });
 }
